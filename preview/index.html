@@ -1,0 +1,1634 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>owlbear-merchant · preview</title>
+<style>
+:root {
+  --bg: #171622;
+  --card: #211f2e;
+  --card-2: #2a2839;
+  --line: #37354c;
+  --text: #ece9f5;
+  --muted: #9c99b6;
+  --accent: #8b7bff;
+  --accent-soft: rgba(139, 123, 255, 0.16);
+  --gold: #f2c14e;
+  --green: #59c27a;
+  --red: #e2585f;
+  --radius: 10px;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  background: transparent;
+  color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+
+#app {
+  height: 100%;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  background: var(--bg);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.loading {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  color: var(--muted);
+}
+
+/* ---------------------------------------------------------------- header -- */
+
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: linear-gradient(180deg, #221f33, #1c1b28);
+  border-bottom: 1px solid var(--line);
+  flex: 0 0 auto;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+
+.brand-icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.brand-icon .ico {
+  width: 18px;
+  height: 18px;
+}
+
+.brand-text {
+  min-width: 0;
+}
+
+.brand-text h1 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tagline {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ------------------------------------------------------------------ body -- */
+
+.app-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+
+.app-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.app-body::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 8px;
+}
+
+.greeting {
+  margin: 0;
+  padding: 8px 10px;
+  border-left: 3px solid var(--accent);
+  background: var(--accent-soft);
+  border-radius: 6px;
+  color: #d9d3ff;
+  font-style: italic;
+}
+
+/* --------------------------------------------------------------- sections -- */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-head h2 {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: var(--muted);
+  flex: 1;
+}
+
+.section-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.section-hint {
+  margin: 0;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.section.editor {
+  background: var(--card);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 10px;
+}
+
+/* ----------------------------------------------------------------- lists -- */
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.list.cards {
+  gap: 8px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.item.compact {
+  padding: 6px 8px;
+}
+
+.item.dim {
+  opacity: 0.55;
+}
+
+.item-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.item-title {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.item-desc {
+  font-size: 11px;
+  color: var(--muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.item-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+.item-side {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+
+.thumb {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--card-2);
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border: 1px solid var(--line);
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.thumb img.broken {
+  display: none;
+}
+
+.price {
+  color: var(--gold);
+}
+
+.pos {
+  color: var(--green);
+}
+
+.neg {
+  color: var(--red);
+}
+
+.muted {
+  color: var(--muted);
+}
+
+/* ----------------------------------------------------------------- cards -- */
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.coin-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--coin, var(--muted));
+  display: inline-block;
+  flex: 0 0 auto;
+}
+
+.coin-dot.big {
+  width: 14px;
+  height: 14px;
+}
+
+/* --------------------------------------------------------------- controls -- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--card-2);
+  color: var(--text);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease, opacity 0.12s;
+  white-space: nowrap;
+}
+
+.btn:hover:not(:disabled) {
+  background: #33314a;
+  border-color: #4a476a;
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #14121f;
+  font-weight: 600;
+}
+
+.btn.primary:hover:not(:disabled) {
+  background: #9d90ff;
+}
+
+.btn.success {
+  background: var(--green);
+  border-color: var(--green);
+  color: #10261a;
+  font-weight: 600;
+}
+
+.btn.danger {
+  background: transparent;
+  border-color: #5c2c33;
+  color: var(--red);
+}
+
+.btn.danger:hover:not(:disabled) {
+  background: #3a1f25;
+}
+
+.btn.subtle {
+  background: transparent;
+}
+
+.btn.icon-only {
+  padding: 6px;
+}
+
+.ico {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.input {
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: #191824;
+  color: var(--text);
+  font: inherit;
+  font-size: 12px;
+}
+
+.input:focus {
+  outline: 2px solid var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.input.small {
+  padding: 4px 6px;
+}
+
+.input.tiny {
+  width: auto;
+  padding: 3px 6px;
+  font-size: 11px;
+}
+
+.input.search {
+  width: 160px;
+}
+
+.input.color {
+  width: 34px;
+  padding: 2px;
+  height: 26px;
+}
+
+.input.qty {
+  width: 52px;
+  text-align: center;
+}
+
+textarea.input {
+  resize: vertical;
+  min-height: 44px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.field-label {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.field-hint {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.field-inline {
+  display: flex;
+  align-items: flex-end;
+}
+
+.check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.check input {
+  accent-color: var(--accent);
+  width: 15px;
+  height: 15px;
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.row.wrap {
+  flex-wrap: wrap;
+}
+
+.row.between {
+  justify-content: space-between;
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.spacer {
+  flex: 1;
+}
+
+/* ----------------------------------------------------------------- money -- */
+
+.money {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3px;
+  white-space: nowrap;
+}
+
+.money .sym {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.money.muted {
+  color: var(--muted);
+}
+
+.money-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 8px;
+}
+
+.money-cell {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--coin, var(--muted));
+  border-radius: 8px;
+  padding: 6px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.coin-name {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.coin-symbol {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.money-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+/* ------------------------------------------------------------ tabs / nav -- */
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  padding: 8px 12px 0;
+  flex: 0 0 auto;
+}
+
+.tab {
+  flex: 1;
+  padding: 7px 6px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 8px 8px 0 0;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+
+.tab:hover {
+  color: var(--text);
+}
+
+.tab.active {
+  color: var(--text);
+  border-bottom-color: var(--accent);
+  background: var(--card);
+}
+
+.tab-badge {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #14121f;
+  font-size: 10px;
+}
+
+.tabbar {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 4px;
+  padding: 8px;
+  border-top: 1px solid var(--line);
+  background: #1c1b28;
+}
+
+.tabbar .tab {
+  border-radius: 8px;
+  padding: 8px 6px;
+}
+
+.tabbar .tab.active {
+  background: var(--accent-soft);
+  border-bottom-color: transparent;
+  color: #cfc7ff;
+}
+
+/* ------------------------------------------------------- misc / feedback -- */
+
+.badge {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--card-2);
+  border: 1px solid var(--line);
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.badge.gm {
+  background: rgba(139, 123, 255, 0.18);
+  border-color: var(--accent);
+  color: #cfc7ff;
+}
+
+.pill {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  font-size: 10px;
+}
+
+.empty {
+  padding: 18px 12px;
+  text-align: center;
+  color: var(--muted);
+  background: var(--card);
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+  font-size: 12px;
+}
+
+.warn {
+  margin: 0;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: rgba(226, 88, 95, 0.12);
+  border: 1px solid rgba(226, 88, 95, 0.4);
+  color: #ffb9bd;
+  font-size: 11px;
+}
+
+.meter {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--card-2);
+  overflow: hidden;
+}
+
+.meter-fill {
+  height: 100%;
+  background: var(--accent);
+}
+
+.meter-fill.danger {
+  background: var(--red);
+}
+
+.toast {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 62px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  background: #2c2a3d;
+  border: 1px solid var(--line);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+  font-size: 12px;
+  cursor: pointer;
+  z-index: 20;
+}
+
+.toast.success {
+  border-color: var(--green);
+}
+
+.toast.error {
+  border-color: var(--red);
+}
+
+.app {
+  position: relative;
+}
+
+@media (max-width: 420px) {
+  .grid2 {
+    grid-template-columns: 1fr;
+  }
+  .input.search {
+    width: 110px;
+  }
+}
+
+body { background: #100f18; padding: 16px; display: flex; gap: 16px; align-items: flex-start; font-family: ui-sans-serif, system-ui, sans-serif; }
+.side { width: 180px; flex: 0 0 auto; display: flex; flex-direction: column; gap: 6px; position: sticky; top: 16px; }
+.side h2 { font-size: 12px; color: #9c99b6; text-transform: uppercase; letter-spacing: .08em; margin: 0 0 4px; }
+.side button { text-align: left; padding: 8px 10px; border-radius: 8px; border: 1px solid #37354c; background: #211f2e; color: #ece9f5; font: inherit; font-size: 12px; cursor: pointer; }
+.side button.active { background: #8b7bff; border-color: #8b7bff; color: #14121f; font-weight: 600; }
+.stage { width: 520px; height: 720px; flex: 0 0 auto; }
+.stage .screen { display: none; height: 100%; }
+.stage .screen.active { display: block; }
+.hint { color: #9c99b6; font-size: 11px; margin-top: 8px; }
+</style>
+</head>
+<body>
+  <nav class="side">
+    <h2>Telas</h2>
+    <button data-index="0" class="active">Lojas</button><button data-index="1" class="">Carteira</button><button data-index="2" class="">Pedidos</button><button data-index="3" class="">Configurações</button><button data-index="4" class="">Loja · Comprar</button><button data-index="5" class="">Loja · Vender</button><button data-index="6" class="">Loja · Serviços</button><button data-index="7" class="">Loja · Gerenciar</button><button data-index="8" class="">Loja · Editor de item</button><button data-index="9" class="">Token sem loja</button>
+    <p class="hint">Preview estático gerado por <code>npm run preview:build</code>.</p>
+  </nav>
+  <div class="stage">
+    <div class="screen active" data-screen="0"><div class="app">
+    <header class="app-header">
+      <div class="brand">
+        <span class="brand-icon"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12l-1 13H7L6 8Zm3 0V6a3 3 0 0 1 6 0v2" /></svg></span>
+        <div class="brand-text">
+          <h1>Mercador</h1>
+          <span class="tagline">Lojas, serviços e moedas configuráveis</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <select class="input tiny" data-field="lang"><option value="pt-BR" selected>PT</option><option value="en">EN</option></select>
+        <span class="badge gm">Mestre</span>
+      </div>
+    </header>
+    <main class="app-body">
+    <section class="section">
+    <header class="section-head">
+      <h2>Lojas da cena</h2>
+      <div class="section-actions"><input type="text" class="input search" data-field="search" placeholder="Buscar…" value="" /></div>
+    </header>
+    <p class="section-hint">Dica: clique com o botão direito em um token na cena para abrir a loja direto.</p>
+    <div class="list"><article class="item">
+            <div class="thumb thumb-empty">F</div>
+            <div class="item-main">
+              <div class="item-title">Ferreiro Boris</div>
+              <div class="item-meta">
+                <span class="badge ">3 itens</span>
+                <span class="badge ">1 serviços</span>
+                
+              </div>
+              <div class="item-desc">Bem-vindo à minha loja, viajante!</div>
+            </div>
+            <div class="item-side">
+              <button type="button" class="btn primary" data-action="open-shop" data-id="token-1"><span>Abrir</span></button>
+              <button type="button" class="btn ghost" data-action="open-manage" data-id="token-1"><span>Gerenciar</span></button>
+            </div>
+          </article></div>
+  </section>
+    <section class="section">
+    <header class="section-head">
+      <h2>Tokens disponíveis</h2>
+      
+    </header>
+    
+    <div class="list"><article class="item compact">
+              <div class="thumb thumb-empty">M</div>
+              <div class="item-main">
+                <div class="item-title">Mercadora Elfa</div>
+              </div>
+              <div class="item-side">
+                <button type="button" class="btn ghost" data-action="create-shop" data-id="token-2"><span>Tornar loja</span></button>
+              </div>
+            </article><article class="item compact">
+              <div class="thumb thumb-empty">G</div>
+              <div class="item-main">
+                <div class="item-title">Goblin</div>
+              </div>
+              <div class="item-side">
+                <button type="button" class="btn ghost" data-action="create-shop" data-id="token-3"><span>Tornar loja</span></button>
+              </div>
+            </article></div>
+  </section>
+  </main>
+    <nav class="tabbar"><nav class="tabs"><button type="button" class="tab active" data-action="tab" data-value="shops">Lojas</button><button type="button" class="tab" data-action="tab" data-value="wallet">Carteira</button><button type="button" class="tab" data-action="tab" data-value="orders">Pedidos<span class="tab-badge">1</span></button><button type="button" class="tab" data-action="tab" data-value="settings">Configurações</button></nav></nav>
+    
+  </div></div><div class="screen" data-screen="1"><div class="app">
+    <header class="app-header">
+      <div class="brand">
+        <span class="brand-icon"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12l-1 13H7L6 8Zm3 0V6a3 3 0 0 1 6 0v2" /></svg></span>
+        <div class="brand-text">
+          <h1>Mercador</h1>
+          <span class="tagline">Lojas, serviços e moedas configuráveis</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <select class="input tiny" data-field="lang"><option value="pt-BR" selected>PT</option><option value="en">EN</option></select>
+        <span class="badge gm">Mestre</span>
+      </div>
+    </header>
+    <main class="app-body">
+    <section class="section">
+    <header class="section-head">
+      <h2>Carteira</h2>
+      
+    </header>
+    
+    <div class="row">
+        <select class="input" data-field="wallet-owner">
+          <option value="player-1" selected>Thorin (Você)</option>
+        </select>
+      </div>
+      <p class="section-hint">Como Mestre você pode editar a carteira de qualquer jogador.</p>
+       <div class="money-grid">
+    <div class="money-cell" style="--coin:#f2c14e">
+          <span class="coin-dot"></span>
+          <span class="coin-name">Ouro</span>
+          <span class="coin-symbol">PO</span>
+          <input type="number" class="input small" data-field="wallet-money" data-id="ouro" min="0" step="1" value="12" />
+        </div><div class="money-cell" style="--coin:#c7ced8">
+          <span class="coin-dot"></span>
+          <span class="coin-name">Prata</span>
+          <span class="coin-symbol">PP</span>
+          <input type="number" class="input small" data-field="wallet-money" data-id="prata" min="0" step="1" value="3" />
+        </div><div class="money-cell" style="--coin:#c98a5e">
+          <span class="coin-dot"></span>
+          <span class="coin-name">Cobre</span>
+          <span class="coin-symbol">PC</span>
+          <input type="number" class="input small" data-field="wallet-money" data-id="cobre" min="0" step="1" value="7" />
+        </div>
+  </div>
+       <div class="row between">
+         <span class="muted">Valor total: 12,37 PO</span>
+       </div>
+  </section>
+    <section class="section">
+    <header class="section-head">
+      <h2>Inventário</h2>
+      <div class="section-actions"><button type="button" class="btn ghost" data-action="new-inventory" data-id="player-1"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg><span>Adicionar</span></button></div>
+    </header>
+    
+    <div class="list"><article class="item">
+            <div class="thumb thumb-empty">P</div>
+            <div class="item-main">
+              <div class="item-title">Poção de cura ×2</div>
+              <div class="item-desc">Restaura 2d4+2 pontos de vida.</div>
+              <div class="item-meta">
+                <span class="money"><b style="color:#f2c14e">50</b> <span class="sym">PO</span></span>
+                <span class="muted">0,50 kg</span>
+              </div>
+            </div>
+            <div class="item-side">
+              <button type="button" class="btn icon-only ghost" data-action="edit-inventory" data-id="inv-1" title="Editar"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L20 8l-4-4L4 16v4Z" /></svg></button>
+              <button type="button" class="btn icon-only ghost" data-action="delete-inventory" data-id="inv-1" title="Excluir" data-confirm="Tem certeza que deseja excluir?"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13h8l1-13" /></svg></button>
+            </div>
+          </article><article class="item">
+            <div class="thumb thumb-empty">A</div>
+            <div class="item-main">
+              <div class="item-title">Anel antigo</div>
+              <div class="item-desc">Um anel de origem desconhecida.</div>
+              <div class="item-meta">
+                <span class="money"><b style="color:#f2c14e">120</b> <span class="sym">PO</span></span>
+                
+              </div>
+            </div>
+            <div class="item-side">
+              <button type="button" class="btn icon-only ghost" data-action="edit-inventory" data-id="inv-2" title="Editar"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L20 8l-4-4L4 16v4Z" /></svg></button>
+              <button type="button" class="btn icon-only ghost" data-action="delete-inventory" data-id="inv-2" title="Excluir" data-confirm="Tem certeza que deseja excluir?"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13h8l1-13" /></svg></button>
+            </div>
+          </article></div>
+  </section>
+  </main>
+    <nav class="tabbar"><nav class="tabs"><button type="button" class="tab" data-action="tab" data-value="shops">Lojas</button><button type="button" class="tab active" data-action="tab" data-value="wallet">Carteira</button><button type="button" class="tab" data-action="tab" data-value="orders">Pedidos<span class="tab-badge">1</span></button><button type="button" class="tab" data-action="tab" data-value="settings">Configurações</button></nav></nav>
+    
+  </div></div><div class="screen" data-screen="2"><div class="app">
+    <header class="app-header">
+      <div class="brand">
+        <span class="brand-icon"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12l-1 13H7L6 8Zm3 0V6a3 3 0 0 1 6 0v2" /></svg></span>
+        <div class="brand-text">
+          <h1>Mercador</h1>
+          <span class="tagline">Lojas, serviços e moedas configuráveis</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <select class="input tiny" data-field="lang"><option value="pt-BR" selected>PT</option><option value="en">EN</option></select>
+        <span class="badge gm">Mestre</span>
+      </div>
+    </header>
+    <main class="app-body"><section class="section">
+    <header class="section-head">
+      <h2>Pendentes</h2>
+      
+    </header>
+    
+    <div class="list"><article class="item compact">
+      <div class="item-main">
+        <div class="item-title">Conserto de armadura</div>
+        <div class="item-meta">
+          <span>por Thorin</span>
+          <span>·</span>
+          <span>em Ferreiro Boris</span>
+          <span>·</span>
+          <span class="muted">03/09, 07:48</span>
+        </div>
+      </div>
+      <div class="item-side">
+        <span class="money"><b style="color:#f2c14e">10</b> <span class="sym">PO</span></span>
+        <button type="button" class="btn success" data-action="order-done" data-id="ord-1"><span>Concluir</span></button><button type="button" class="btn danger" data-action="order-delete" data-id="ord-1" data-confirm="Tem certeza que deseja excluir?"><span>Excluir</span></button>
+      </div>
+    </article></div>
+  </section></main>
+    <nav class="tabbar"><nav class="tabs"><button type="button" class="tab" data-action="tab" data-value="shops">Lojas</button><button type="button" class="tab" data-action="tab" data-value="wallet">Carteira</button><button type="button" class="tab active" data-action="tab" data-value="orders">Pedidos<span class="tab-badge">1</span></button><button type="button" class="tab" data-action="tab" data-value="settings">Configurações</button></nav></nav>
+    
+  </div></div><div class="screen" data-screen="3"><div class="app">
+    <header class="app-header">
+      <div class="brand">
+        <span class="brand-icon"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12l-1 13H7L6 8Zm3 0V6a3 3 0 0 1 6 0v2" /></svg></span>
+        <div class="brand-text">
+          <h1>Mercador</h1>
+          <span class="tagline">Lojas, serviços e moedas configuráveis</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <select class="input tiny" data-field="lang"><option value="pt-BR" selected>PT</option><option value="en">EN</option></select>
+        <span class="badge gm">Mestre</span>
+      </div>
+    </header>
+    <main class="app-body"><section class="section">
+    <header class="section-head">
+      <h2>Moeda</h2>
+      
+    </header>
+    <p class="section-hint">Renomeie, mude símbolo, cor e taxa de conversão. A primeira moeda é a principal. A taxa define quantas unidades base vale 1 unidade da moeda (ex.: Ouro 100, Prata 10, Cobre 1).</p>
+    <div class="list cards"><article class="card">
+    <header class="card-head">
+      <span class="coin-dot big" style="background:#f2c14e"></span>
+      <strong>Ouro</strong>
+      <span class="muted">PO</span>
+      <div class="card-actions">
+        <input type="color" class="input color" data-field="currency-color" data-id="ouro" value="#f2c14e" />
+        <button type="button" class="btn icon-only ghost" data-action="move-currency" data-id="ouro" data-value="up" title="Subir" disabled><svg class="ico" viewBox="0 0 24 24"><path d="m6 15 6-6 6 6"/></svg></button>
+        <button type="button" class="btn icon-only ghost" data-action="move-currency" data-id="ouro" data-value="down" title="Descer"><svg class="ico" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></button>
+        <button type="button" class="btn icon-only danger" data-action="delete-currency" data-id="ouro" title="Excluir" data-confirm="Tem certeza que deseja excluir?"><svg class="ico" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13h8l1-13"/></svg></button>
+      </div>
+    </header>
+    <div class="grid2">
+      <label class="field"><span class="field-label">Nome (singular)</span><input type="text" class="input" data-field="currency-name" data-id="ouro" value="Ouro" /></label>
+      <label class="field"><span class="field-label">Plural</span><input type="text" class="input" data-field="currency-plural" data-id="ouro" value="Ouros" /></label>
+      <label class="field"><span class="field-label">Símbolo</span><input type="text" class="input" data-field="currency-symbol" data-id="ouro" value="PO" /></label>
+      <label class="field"><span class="field-label">Taxa</span><input type="number" class="input" data-field="currency-rate" data-id="ouro" min="0.0001" step="1" value="100" /></label>
+      <label class="field"><span class="field-label">Decimais</span><input type="number" class="input" data-field="currency-decimals" data-id="ouro" min="0" max="4" step="1" value="0" /></label>
+    </div>
+  </article><article class="card">
+    <header class="card-head">
+      <span class="coin-dot big" style="background:#c7ced8"></span>
+      <strong>Prata</strong>
+      <span class="muted">PP</span>
+      <div class="card-actions">
+        <input type="color" class="input color" data-field="currency-color" data-id="prata" value="#c7ced8" />
+        <button type="button" class="btn icon-only ghost" data-action="move-currency" data-id="prata" data-value="up" title="Subir"><svg class="ico" viewBox="0 0 24 24"><path d="m6 15 6-6 6 6"/></svg></button>
+        <button type="button" class="btn icon-only ghost" data-action="move-currency" data-id="prata" data-value="down" title="Descer"><svg class="ico" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></button>
+        <button type="button" class="btn icon-only danger" data-action="delete-currency" data-id="prata" title="Excluir" data-confirm="Tem certeza que deseja excluir?"><svg class="ico" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13h8l1-13"/></svg></button>
+      </div>
+    </header>
+    <div class="grid2">
+      <label class="field"><span class="field-label">Nome (singular)</span><input type="text" class="input" data-field="currency-name" data-id="prata" value="Prata" /></label>
+      <label class="field"><span class="field-label">Plural</span><input type="text" class="input" data-field="currency-plural" data-id="prata" value="Pratas" /></label>
+      <label class="field"><span class="field-label">Símbolo</span><input type="text" class="input" data-field="currency-symbol" data-id="prata" value="PP" /></label>
+      <label class="field"><span class="field-label">Taxa</span><input type="number" class="input" data-field="currency-rate" data-id="prata" min="0.0001" step="1" value="10" /></label>
+      <label class="field"><span class="field-label">Decimais</span><input type="number" class="input" data-field="currency-decimals" data-id="prata" min="0" max="4" step="1" value="0" /></label>
+    </div>
+  </article><article class="card">
+    <header class="card-head">
+      <span class="coin-dot big" style="background:#c98a5e"></span>
+      <strong>Cobre</strong>
+      <span class="muted">PC</span>
+      <div class="card-actions">
+        <input type="color" class="input color" data-field="currency-color" data-id="cobre" value="#c98a5e" />
+        <button type="button" class="btn icon-only ghost" data-action="move-currency" data-id="cobre" data-value="up" title="Subir"><svg class="ico" viewBox="0 0 24 24"><path d="m6 15 6-6 6 6"/></svg></button>
+        <button type="button" class="btn icon-only ghost" data-action="move-currency" data-id="cobre" data-value="down" title="Descer" disabled><svg class="ico" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></button>
+        <button type="button" class="btn icon-only danger" data-action="delete-currency" data-id="cobre" title="Excluir" data-confirm="Tem certeza que deseja excluir?"><svg class="ico" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13h8l1-13"/></svg></button>
+      </div>
+    </header>
+    <div class="grid2">
+      <label class="field"><span class="field-label">Nome (singular)</span><input type="text" class="input" data-field="currency-name" data-id="cobre" value="Cobre" /></label>
+      <label class="field"><span class="field-label">Plural</span><input type="text" class="input" data-field="currency-plural" data-id="cobre" value="Cobres" /></label>
+      <label class="field"><span class="field-label">Símbolo</span><input type="text" class="input" data-field="currency-symbol" data-id="cobre" value="PC" /></label>
+      <label class="field"><span class="field-label">Taxa</span><input type="number" class="input" data-field="currency-rate" data-id="cobre" min="0.0001" step="1" value="1" /></label>
+      <label class="field"><span class="field-label">Decimais</span><input type="number" class="input" data-field="currency-decimals" data-id="cobre" min="0" max="4" step="1" value="0" /></label>
+    </div>
+  </article></div>
+     <div class="row wrap">
+       <button type="button" class="btn ghost" data-action="add-currency"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg><span>Adicionar moeda</span></button>
+       <span class="spacer"></span>
+       <span class="muted">Modelos prontos</span>
+       <button type="button" class="btn ghost" data-action="preset" data-value="dnd"><span>Ouro / Prata / Cobre</span></button>
+       <button type="button" class="btn ghost" data-action="preset" data-value="two"><span>Duas moedas</span></button>
+       <button type="button" class="btn ghost" data-action="preset" data-value="single"><span>Moeda única (Créditos)</span></button>
+     </div>
+  </section><section class="section">
+    <header class="section-head">
+      <h2>Economia</h2>
+      
+    </header>
+    
+    <div class="grid2">
+       <label class="field"><span class="field-label">Multiplicador de venda (preço cobrado do jogador)</span><input type="number" class="input" data-field="setting-price" min="0" step="0.05" value="1" /></label>
+       <label class="field"><span class="field-label">Multiplicador de compra (valor pago ao jogador)</span><input type="number" class="input" data-field="setting-payout" min="0" step="0.05" value="0.5" /></label>
+       <label class="field"><span class="field-label">Alcance de interação padrão (células, 0 = livre)</span><input type="number" class="input" data-field="setting-range" min="0" step="1" value="0" /></label>
+       <div class="field-inline">
+         <label class="check"><input type="checkbox" data-field="setting-showRarity" checked /><span>Mostrar raridade nas listas</span></label>
+       </div>
+     </div>
+  </section><section class="section">
+    <header class="section-head">
+      <h2>Multiplicadores por raridade</h2>
+      
+    </header>
+    
+    <div class="grid2"><label class="field"><span class="field-label">Comum</span><input type="number" class="input" data-field="rarity-mult" data-id="common" min="0" step="0.05" value="1" /></label><label class="field"><span class="field-label">Incomum</span><input type="number" class="input" data-field="rarity-mult" data-id="uncommon" min="0" step="0.05" value="1.25" /></label><label class="field"><span class="field-label">Raro</span><input type="number" class="input" data-field="rarity-mult" data-id="rare" min="0" step="0.05" value="1.5" /></label><label class="field"><span class="field-label">Muito raro</span><input type="number" class="input" data-field="rarity-mult" data-id="veryRare" min="0" step="0.05" value="2" /></label><label class="field"><span class="field-label">Lendário</span><input type="number" class="input" data-field="rarity-mult" data-id="legendary" min="0" step="0.05" value="3" /></label><label class="field"><span class="field-label">Artefato</span><input type="number" class="input" data-field="rarity-mult" data-id="artifact" min="0" step="0.05" value="5" /></label></div>
+  </section><section class="section">
+    <header class="section-head">
+      <h2>Armazenamento</h2>
+      
+    </header>
+    
+    <div class="row between">
+       <span>Uso estimado do metadata da sala: 1.7 kB</span>
+       <span class="muted">16.0 kB max</span>
+     </div>
+     <div class="meter"><div class="meter-fill" style="width:10.6%"></div></div>
+     
+     <div class="row wrap">
+       <button type="button" class="btn ghost" data-action="clear-log"><span>Limpar histórico</span></button>
+       <button type="button" class="btn ghost" data-action="clear-absent"><span>Excluir carteiras de jogadores ausentes</span></button>
+     </div>
+  </section><section class="section">
+    <header class="section-head">
+      <h2>Histórico de transações</h2>
+      
+    </header>
+    
+    <div class="list"><article class="item compact">
+              <div class="item-main">
+                <div class="item-title">Comprou · 1× Poção de cura</div>
+                <div class="item-meta">
+                  <span>Thorin</span>
+                  <span>· Ferreiro Boris</span>
+                  <span class="muted">· 03/09, 07:48</span>
+                </div>
+              </div>
+              <div class="item-side">
+                <span class="neg">0,50 PO</span>
+              </div>
+            </article><article class="item compact">
+              <div class="item-main">
+                <div class="item-title">Vendeu · 1× Anel antigo</div>
+                <div class="item-meta">
+                  <span>Thorin</span>
+                  <span>· Ferreiro Boris</span>
+                  <span class="muted">· 03/09, 07:48</span>
+                </div>
+              </div>
+              <div class="item-side">
+                <span class="pos">+0,60 PO</span>
+              </div>
+            </article></div>
+  </section><section class="section">
+    <header class="section-head">
+      <h2>Backup</h2>
+      
+    </header>
+    <p class="section-hint">Copie o JSON da configuração ou cole um JSON antes de importar.</p>
+    <textarea class="input" rows="6" data-field="backup-text" placeholder="{ }"></textarea>
+     <div class="row wrap">
+       <button type="button" class="btn ghost" data-action="export-json"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 9h9v9H9V9Zm-3 3H3V3h9v3" /></svg><span>Exportar JSON</span></button>
+       <button type="button" class="btn primary" data-action="import-json"><span>Importar JSON</span></button>
+     </div>
+  </section><section class="section">
+    <header class="section-head">
+      <h2>Zona de perigo</h2>
+      
+    </header>
+    
+    <div class="row wrap">
+       <button type="button" class="btn danger" data-action="reset-all" data-confirm="Isso apaga TODAS as lojas, carteiras e pedidos da sala. Continuar?"><span>Restaurar tudo (moedas, carteiras e lojas)</span></button>
+     </div>
+  </section></main>
+    <nav class="tabbar"><nav class="tabs"><button type="button" class="tab" data-action="tab" data-value="shops">Lojas</button><button type="button" class="tab" data-action="tab" data-value="wallet">Carteira</button><button type="button" class="tab" data-action="tab" data-value="orders">Pedidos<span class="tab-badge">1</span></button><button type="button" class="tab active" data-action="tab" data-value="settings">Configurações</button></nav></nav>
+    
+  </div></div><div class="screen" data-screen="4"><div class="app">
+    <header class="app-header">
+      <div class="brand">
+        <div class="thumb thumb-empty">F</div>
+        <div class="brand-text">
+          <h1>Ferreiro Boris</h1>
+          
+        </div>
+      </div>
+      <div class="header-actions"><select class="input tiny" data-field="lang"><option value="pt-BR" selected>PT</option><option value="en">EN</option></select></div>
+    </header>
+    <nav class="tabs"><button type="button" class="tab active" data-action="shop-tab" data-value="buy">Comprar</button><button type="button" class="tab" data-action="shop-tab" data-value="sell">Vender</button><button type="button" class="tab" data-action="shop-tab" data-value="services">Serviços</button><button type="button" class="tab" data-action="shop-tab" data-value="manage">Gerenciar</button></nav>
+    <main class="app-body"><p class="greeting">“Bem-vindo à minha loja, viajante!”</p><div class="list"><article class="item">
+        <div class="thumb thumb-empty">P</div>
+        <div class="item-main">
+          <div class="item-title">Poção de cura</div>
+          <div class="item-desc">Restaura 2d4+2 pontos de vida.</div>
+          <div class="item-meta">
+            <strong class="price">50 PO</strong>
+            <span class="muted">3</span>
+            <span class="badge ">Comum</span> <span class="muted">0,50 kg</span>
+          </div>
+        </div>
+        <div class="item-side">
+          <input type="number" class="input qty" value="1" min="1" step="1" data-qty-for="stock-1" />
+          <button type="button" class="btn primary" data-action="buy" data-id="stock-1"><span>Comprar</span></button>
+        </div>
+      </article><article class="item">
+        <div class="thumb thumb-empty">E</div>
+        <div class="item-main">
+          <div class="item-title">Espada longa</div>
+          <div class="item-desc">1d8 de dano cortante.</div>
+          <div class="item-meta">
+            <strong class="price">30 PO</strong>
+            <span class="muted">1</span>
+            <span class="badge ">Raro</span> <span class="muted">3,00 kg</span>
+          </div>
+        </div>
+        <div class="item-side">
+          <input type="number" class="input qty" value="1" min="1" step="1" data-qty-for="stock-2" />
+          <button type="button" class="btn primary" data-action="buy" data-id="stock-2"><span>Comprar</span></button>
+        </div>
+      </article><article class="item">
+        <div class="thumb thumb-empty">A</div>
+        <div class="item-main">
+          <div class="item-title">Adaga</div>
+          
+          <div class="item-meta">
+            <strong class="price">2 PO</strong>
+            <span class="muted">Infinito</span>
+            <span class="muted">0,50 kg</span>
+          </div>
+        </div>
+        <div class="item-side">
+          <input type="number" class="input qty" value="1" min="1" step="1" data-qty-for="stock-3" />
+          <button type="button" class="btn primary" data-action="buy" data-id="stock-3"><span>Comprar</span></button>
+        </div>
+      </article></div></main>
+    <nav class="tabbar"><button type="button" class="btn ghost" data-action="back"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7" /></svg><span>Voltar</span></button></nav>
+    
+  </div></div><div class="screen" data-screen="5"><div class="app">
+    <header class="app-header">
+      <div class="brand">
+        <div class="thumb thumb-empty">F</div>
+        <div class="brand-text">
+          <h1>Ferreiro Boris</h1>
+          
+        </div>
+      </div>
+      <div class="header-actions"><select class="input tiny" data-field="lang"><option value="pt-BR" selected>PT</option><option value="en">EN</option></select></div>
+    </header>
+    <nav class="tabs"><button type="button" class="tab" data-action="shop-tab" data-value="buy">Comprar</button><button type="button" class="tab active" data-action="shop-tab" data-value="sell">Vender</button><button type="button" class="tab" data-action="shop-tab" data-value="services">Serviços</button><button type="button" class="tab" data-action="shop-tab" data-value="manage">Gerenciar</button></nav>
+    <main class="app-body"><div class="list"><article class="item">
+        <div class="thumb thumb-empty">P</div>
+        <div class="item-main">
+          <div class="item-title">Poção de cura ×2</div>
+          <div class="item-meta">
+            <strong class="price pos">25 PO</strong>
+            <span class="badge ">Comum</span> <span class="muted">0,50 kg</span>
+          </div>
+        </div>
+        <div class="item-side">
+          <input type="number" class="input qty" value="1" min="1" max="2" step="1" data-qty-for="sell_inv-1" />
+          <button type="button" class="btn success" data-action="sell" data-id="inv-1"><span>Vender</span></button>
+        </div>
+      </article><article class="item">
+        <div class="thumb thumb-empty">A</div>
+        <div class="item-main">
+          <div class="item-title">Anel antigo</div>
+          <div class="item-meta">
+            <strong class="price pos">180 PO</strong>
+            <span class="badge ">Lendário</span>
+          </div>
+        </div>
+        <div class="item-side">
+          <input type="number" class="input qty" value="1" min="1" max="1" step="1" data-qty-for="sell_inv-2" />
+          <button type="button" class="btn success" data-action="sell" data-id="inv-2"><span>Vender</span></button>
+        </div>
+      </article></div></main>
+    <nav class="tabbar"><button type="button" class="btn ghost" data-action="back"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7" /></svg><span>Voltar</span></button></nav>
+    
+  </div></div><div class="screen" data-screen="6"><div class="app">
+    <header class="app-header">
+      <div class="brand">
+        <div class="thumb thumb-empty">F</div>
+        <div class="brand-text">
+          <h1>Ferreiro Boris</h1>
+          
+        </div>
+      </div>
+      <div class="header-actions"><select class="input tiny" data-field="lang"><option value="pt-BR" selected>PT</option><option value="en">EN</option></select></div>
+    </header>
+    <nav class="tabs"><button type="button" class="tab" data-action="shop-tab" data-value="buy">Comprar</button><button type="button" class="tab" data-action="shop-tab" data-value="sell">Vender</button><button type="button" class="tab active" data-action="shop-tab" data-value="services">Serviços</button><button type="button" class="tab" data-action="shop-tab" data-value="manage">Gerenciar</button></nav>
+    <main class="app-body"><div class="list"><article class="item">
+        <div class="thumb thumb-empty">C</div>
+        <div class="item-main">
+          <div class="item-title">Conserto de armadura</div>
+          <div class="item-desc">Deixa sua armadura como nova.</div>
+          <div class="item-meta">
+            <strong class="price">10 PO</strong>
+          </div>
+        </div>
+        <div class="item-side">
+          <button type="button" class="btn primary" data-action="hire" data-id="svc-1"><span>Serviços</span></button>
+        </div>
+      </article></div></main>
+    <nav class="tabbar"><button type="button" class="btn ghost" data-action="back"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7" /></svg><span>Voltar</span></button></nav>
+    
+  </div></div><div class="screen" data-screen="7"><div class="app">
+    <header class="app-header">
+      <div class="brand">
+        <div class="thumb thumb-empty">F</div>
+        <div class="brand-text">
+          <h1>Ferreiro Boris</h1>
+          
+        </div>
+      </div>
+      <div class="header-actions"><select class="input tiny" data-field="lang"><option value="pt-BR" selected>PT</option><option value="en">EN</option></select></div>
+    </header>
+    <nav class="tabs"><button type="button" class="tab" data-action="shop-tab" data-value="buy">Comprar</button><button type="button" class="tab" data-action="shop-tab" data-value="sell">Vender</button><button type="button" class="tab" data-action="shop-tab" data-value="services">Serviços</button><button type="button" class="tab active" data-action="shop-tab" data-value="manage">Gerenciar</button></nav>
+    <main class="app-body"><section class="section">
+    <header class="section-head">
+      <h2>Nome</h2>
+      
+    </header>
+    
+    <div class="grid2">
+      <label class="field"><span class="field-label">Nome do mercador</span><input type="text" class="input" data-field="shop-name" data-action="shop-field" data-id="token-1" placeholder="Ferreiro Boris" value="Ferreiro Boris" /></label>
+      <label class="field"><span class="field-label">Alcance de interação</span><input type="number" class="input" data-field="shop-range" data-action="shop-field" data-id="token-1" min="0" step="1" value="0" /></label>
+    </div>
+    <label class="field"><span class="field-label">Saudação</span><textarea class="input" rows="2" data-field="shop-greeting" data-action="shop-field" data-id="token-1">Bem-vindo à minha loja, viajante!</textarea></label>
+    <div class="grid2">
+      <label class="field"><span class="field-label">Preço cobrado do jogador</span><input type="number" class="input" data-field="shop-price" data-action="shop-field" data-id="token-1" min="0" step="0.05" value="1" /></label>
+      <label class="field"><span class="field-label">Valor pago ao jogador</span><input type="number" class="input" data-field="shop-payout" data-action="shop-field" data-id="token-1" min="0" step="0.05" value="0.5" /></label>
+    </div>
+    <div class="row wrap">
+      <label class="check"><input type="checkbox" data-field="shop-enabled" data-action="shop-toggle" data-id="token-1" checked /><span>Ativar modo mercador</span></label>
+      <label class="check"><input type="checkbox" data-field="shop-infinite" data-action="shop-toggle" data-id="token-1" checked /><span>Fundos infinitos</span></label>
+      <label class="check"><input type="checkbox" data-field="shop-allow-owner" data-action="shop-toggle" data-id="token-1" /><span>Donos do token podem gerenciar</span></label>
+    </div>
+  </section><section class="section">
+    <header class="section-head">
+      <h2>Fundos do mercador</h2>
+      
+    </header>
+    
+    <div class="money-grid">
+      <div class="money-cell" style="--coin:#f2c14e">
+            <span class="coin-dot"></span>
+            <span class="coin-name">Ouro</span>
+            <input type="number" class="input small" data-field="shop-funds" data-action="shop-fund" data-id="ouro" min="0" step="1" value="500" />
+          </div><div class="money-cell" style="--coin:#c7ced8">
+            <span class="coin-dot"></span>
+            <span class="coin-name">Prata</span>
+            <input type="number" class="input small" data-field="shop-funds" data-action="shop-fund" data-id="prata" min="0" step="1" value="40" />
+          </div><div class="money-cell" style="--coin:#c98a5e">
+            <span class="coin-dot"></span>
+            <span class="coin-name">Cobre</span>
+            <input type="number" class="input small" data-field="shop-funds" data-action="shop-fund" data-id="cobre" min="0" step="1" value="75" />
+          </div>
+    </div>
+    <div class="row between">
+      <span class="muted">Valor total: 504,75 PO</span>
+    </div>
+  </section><section class="section">
+    <header class="section-head">
+      <h2>Estoque</h2>
+      <div class="section-actions"><button type="button" class="btn ghost" data-action="new-stock"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg><span>Adicionar item</span></button></div>
+    </header>
+    
+    <div class="list"><article class="item compact">
+            <div class="thumb thumb-empty">P</div>
+            <div class="item-main">
+              <div class="item-title">Poção de cura</div>
+              <div class="item-meta">
+                <span class="price">50 PO</span>
+                <span class="muted">×3</span>
+                <span class="badge ">Comum</span> <span class="muted">0,50 kg</span>
+              </div>
+            </div>
+            <div class="item-side">
+              <button type="button" class="btn icon-only ghost" data-action="edit-stock" data-id="stock-1" title="Editar"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L20 8l-4-4L4 16v4Z" /></svg></button>
+              <button type="button" class="btn icon-only ghost" data-action="delete-stock" data-id="stock-1" title="Excluir" data-confirm="Tem certeza que deseja excluir?"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13h8l1-13" /></svg></button>
+            </div>
+          </article><article class="item compact">
+            <div class="thumb thumb-empty">E</div>
+            <div class="item-main">
+              <div class="item-title">Espada longa</div>
+              <div class="item-meta">
+                <span class="price">15 PO</span>
+                <span class="muted">×1</span>
+                <span class="badge ">Raro</span> <span class="muted">3,00 kg</span>
+              </div>
+            </div>
+            <div class="item-side">
+              <button type="button" class="btn icon-only ghost" data-action="edit-stock" data-id="stock-2" title="Editar"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L20 8l-4-4L4 16v4Z" /></svg></button>
+              <button type="button" class="btn icon-only ghost" data-action="delete-stock" data-id="stock-2" title="Excluir" data-confirm="Tem certeza que deseja excluir?"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13h8l1-13" /></svg></button>
+            </div>
+          </article><article class="item compact">
+            <div class="thumb thumb-empty">A</div>
+            <div class="item-main">
+              <div class="item-title">Adaga</div>
+              <div class="item-meta">
+                <span class="price">2 PO</span>
+                <span class="muted">Infinito</span>
+                <span class="muted">0,50 kg</span>
+              </div>
+            </div>
+            <div class="item-side">
+              <button type="button" class="btn icon-only ghost" data-action="edit-stock" data-id="stock-3" title="Editar"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L20 8l-4-4L4 16v4Z" /></svg></button>
+              <button type="button" class="btn icon-only ghost" data-action="delete-stock" data-id="stock-3" title="Excluir" data-confirm="Tem certeza que deseja excluir?"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13h8l1-13" /></svg></button>
+            </div>
+          </article></div>
+  </section><section class="section">
+    <header class="section-head">
+      <h2>Serviços</h2>
+      <div class="section-actions"><button type="button" class="btn ghost" data-action="new-service"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg><span>Adicionar serviço</span></button></div>
+    </header>
+    
+    <div class="list"><article class="item compact">
+            <div class="thumb thumb-empty">C</div>
+            <div class="item-main">
+              <div class="item-title">Conserto de armadura</div>
+              <div class="item-meta">
+                <span class="price">10 PO</span>
+                
+              </div>
+            </div>
+            <div class="item-side">
+              <button type="button" class="btn icon-only ghost" data-action="edit-service" data-id="svc-1" title="Editar"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L20 8l-4-4L4 16v4Z" /></svg></button>
+              <button type="button" class="btn icon-only ghost" data-action="delete-service" data-id="svc-1" title="Excluir" data-confirm="Tem certeza que deseja excluir?"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13h8l1-13" /></svg></button>
+            </div>
+          </article></div>
+  </section><section class="section">
+    <header class="section-head">
+      <h2>Adicionar do meu inventário</h2>
+      
+    </header>
+    
+    <div class="list"><article class="item compact">
+            <div class="thumb thumb-empty">P</div>
+            <div class="item-main"><div class="item-title">Poção de cura</div></div>
+            <div class="item-side">
+              <button type="button" class="btn ghost" data-action="stock-from-inventory" data-id="inv-1"><span>Adicionar</span></button>
+            </div>
+          </article><article class="item compact">
+            <div class="thumb thumb-empty">A</div>
+            <div class="item-main"><div class="item-title">Anel antigo</div></div>
+            <div class="item-side">
+              <button type="button" class="btn ghost" data-action="stock-from-inventory" data-id="inv-2"><span>Adicionar</span></button>
+            </div>
+          </article></div>
+  </section><section class="section">
+    <header class="section-head">
+      <h2>Multiplicadores de raridade desta loja</h2>
+      
+    </header>
+    
+    <div class="grid2"><label class="field"><span class="field-label">Comum</span><input type="number" class="input" data-field="shop-rarity" data-action="shop-rarity" data-id="common" min="0" step="0.05" value="1" /></label><label class="field"><span class="field-label">Incomum</span><input type="number" class="input" data-field="shop-rarity" data-action="shop-rarity" data-id="uncommon" min="0" step="0.05" value="1.25" /></label><label class="field"><span class="field-label">Raro</span><input type="number" class="input" data-field="shop-rarity" data-action="shop-rarity" data-id="rare" min="0" step="0.05" value="2" /></label><label class="field"><span class="field-label">Muito raro</span><input type="number" class="input" data-field="shop-rarity" data-action="shop-rarity" data-id="veryRare" min="0" step="0.05" value="2" /></label><label class="field"><span class="field-label">Lendário</span><input type="number" class="input" data-field="shop-rarity" data-action="shop-rarity" data-id="legendary" min="0" step="0.05" value="3" /></label><label class="field"><span class="field-label">Artefato</span><input type="number" class="input" data-field="shop-rarity" data-action="shop-rarity" data-id="artifact" min="0" step="0.05" value="5" /></label></div>
+    <div class="row wrap">
+      <button type="button" class="btn ghost" data-action="shop-rarity-reset"><span>Usar multiplicadores globais</span></button>
+    </div>
+  </section><div class="row wrap">
+    <button type="button" class="btn danger" data-action="delete-shop" data-id="token-1" data-confirm="Tem certeza que deseja excluir?"><span>Excluir · Mercador</span></button>
+  </div></main>
+    <nav class="tabbar"><button type="button" class="btn ghost" data-action="back"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7" /></svg><span>Voltar</span></button></nav>
+    
+  </div></div><div class="screen" data-screen="8"><div class="app">
+    <header class="app-header">
+      <div class="brand">
+        <div class="thumb thumb-empty">F</div>
+        <div class="brand-text">
+          <h1>Ferreiro Boris</h1>
+          
+        </div>
+      </div>
+      <div class="header-actions"><select class="input tiny" data-field="lang"><option value="pt-BR" selected>PT</option><option value="en">EN</option></select></div>
+    </header>
+    <nav class="tabs"><button type="button" class="tab" data-action="shop-tab" data-value="buy">Comprar</button><button type="button" class="tab" data-action="shop-tab" data-value="sell">Vender</button><button type="button" class="tab" data-action="shop-tab" data-value="services">Serviços</button><button type="button" class="tab active" data-action="shop-tab" data-value="manage">Gerenciar</button></nav>
+    <main class="app-body"><section class="section editor">
+    <header class="section-head"><h2>Editar item</h2></header>
+    <div class="grid2">
+      <label class="field"><span class="field-label">Nome</span><input type="text" class="input" data-field="edit" data-edit-field="name" value="Poção de cura" /></label>
+      <label class="field"><span class="field-label">Preço</span><div class="row">
+          <input type="number" class="input" data-field="edit" data-edit-field="price.amount" min="0" step="0.01" value="50" />
+          <select class="input" data-field="edit" data-edit-field="price.currencyId"><option value="ouro" selected>Ouro (PO)</option><option value="prata">Prata (PP)</option><option value="cobre">Cobre (PC)</option></select>
+        </div></label>
+    </div>
+    <label class="field"><span class="field-label">Descrição</span><textarea class="input" rows="2" data-field="edit" data-edit-field="description">Restaura 2d4+2 pontos de vida.</textarea></label>
+    <label class="field"><span class="field-label">Ícone (URL)</span><input type="text" class="input" data-field="edit" data-edit-field="icon" placeholder="https://…" value="" /></label>
+    <div class="grid2">
+            <label class="field"><span class="field-label">Raridade</span><select class="input" data-field="edit" data-edit-field="rarity"><option value="">Sem raridade</option><option value="common" selected>Comum</option><option value="uncommon">Incomum</option><option value="rare">Raro</option><option value="veryRare">Muito raro</option><option value="legendary">Lendário</option><option value="artifact">Artefato</option></select></label>
+            <label class="field"><span class="field-label">Peso</span><input type="number" class="input" data-field="edit" data-edit-field="weight" min="0" step="0.1" value="0.5" /></label>
+            <label class="field"><span class="field-label">Estoque (-1 = infinito)</span><input type="number" class="input" data-field="edit" data-edit-field="quantity" step="1" value="3" /></label>
+          </div>
+    <div class="row wrap">
+      <button type="button" class="btn primary" data-action="save-edit"><span>Salvar</span></button>
+      <button type="button" class="btn ghost" data-action="cancel-edit"><span>Cancelar</span></button>
+    </div>
+  </section><section class="section">
+    <header class="section-head">
+      <h2>Nome</h2>
+      
+    </header>
+    
+    <div class="grid2">
+      <label class="field"><span class="field-label">Nome do mercador</span><input type="text" class="input" data-field="shop-name" data-action="shop-field" data-id="token-1" placeholder="Ferreiro Boris" value="Ferreiro Boris" /></label>
+      <label class="field"><span class="field-label">Alcance de interação</span><input type="number" class="input" data-field="shop-range" data-action="shop-field" data-id="token-1" min="0" step="1" value="0" /></label>
+    </div>
+    <label class="field"><span class="field-label">Saudação</span><textarea class="input" rows="2" data-field="shop-greeting" data-action="shop-field" data-id="token-1">Bem-vindo à minha loja, viajante!</textarea></label>
+    <div class="grid2">
+      <label class="field"><span class="field-label">Preço cobrado do jogador</span><input type="number" class="input" data-field="shop-price" data-action="shop-field" data-id="token-1" min="0" step="0.05" value="1" /></label>
+      <label class="field"><span class="field-label">Valor pago ao jogador</span><input type="number" class="input" data-field="shop-payout" data-action="shop-field" data-id="token-1" min="0" step="0.05" value="0.5" /></label>
+    </div>
+    <div class="row wrap">
+      <label class="check"><input type="checkbox" data-field="shop-enabled" data-action="shop-toggle" data-id="token-1" checked /><span>Ativar modo mercador</span></label>
+      <label class="check"><input type="checkbox" data-field="shop-infinite" data-action="shop-toggle" data-id="token-1" checked /><span>Fundos infinitos</span></label>
+      <label class="check"><input type="checkbox" data-field="shop-allow-owner" data-action="shop-toggle" data-id="token-1" /><span>Donos do token podem gerenciar</span></label>
+    </div>
+  </section><section class="section">
+    <header class="section-head">
+      <h2>Fundos do mercador</h2>
+      
+    </header>
+    
+    <div class="money-grid">
+      <div class="money-cell" style="--coin:#f2c14e">
+            <span class="coin-dot"></span>
+            <span class="coin-name">Ouro</span>
+            <input type="number" class="input small" data-field="shop-funds" data-action="shop-fund" data-id="ouro" min="0" step="1" value="500" />
+          </div><div class="money-cell" style="--coin:#c7ced8">
+            <span class="coin-dot"></span>
+            <span class="coin-name">Prata</span>
+            <input type="number" class="input small" data-field="shop-funds" data-action="shop-fund" data-id="prata" min="0" step="1" value="40" />
+          </div><div class="money-cell" style="--coin:#c98a5e">
+            <span class="coin-dot"></span>
+            <span class="coin-name">Cobre</span>
+            <input type="number" class="input small" data-field="shop-funds" data-action="shop-fund" data-id="cobre" min="0" step="1" value="75" />
+          </div>
+    </div>
+    <div class="row between">
+      <span class="muted">Valor total: 504,75 PO</span>
+    </div>
+  </section><section class="section">
+    <header class="section-head">
+      <h2>Estoque</h2>
+      <div class="section-actions"><button type="button" class="btn ghost" data-action="new-stock"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg><span>Adicionar item</span></button></div>
+    </header>
+    
+    <div class="list"><article class="item compact">
+            <div class="thumb thumb-empty">P</div>
+            <div class="item-main">
+              <div class="item-title">Poção de cura</div>
+              <div class="item-meta">
+                <span class="price">50 PO</span>
+                <span class="muted">×3</span>
+                <span class="badge ">Comum</span> <span class="muted">0,50 kg</span>
+              </div>
+            </div>
+            <div class="item-side">
+              <button type="button" class="btn icon-only ghost" data-action="edit-stock" data-id="stock-1" title="Editar"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L20 8l-4-4L4 16v4Z" /></svg></button>
+              <button type="button" class="btn icon-only ghost" data-action="delete-stock" data-id="stock-1" title="Excluir" data-confirm="Tem certeza que deseja excluir?"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13h8l1-13" /></svg></button>
+            </div>
+          </article><article class="item compact">
+            <div class="thumb thumb-empty">E</div>
+            <div class="item-main">
+              <div class="item-title">Espada longa</div>
+              <div class="item-meta">
+                <span class="price">15 PO</span>
+                <span class="muted">×1</span>
+                <span class="badge ">Raro</span> <span class="muted">3,00 kg</span>
+              </div>
+            </div>
+            <div class="item-side">
+              <button type="button" class="btn icon-only ghost" data-action="edit-stock" data-id="stock-2" title="Editar"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L20 8l-4-4L4 16v4Z" /></svg></button>
+              <button type="button" class="btn icon-only ghost" data-action="delete-stock" data-id="stock-2" title="Excluir" data-confirm="Tem certeza que deseja excluir?"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13h8l1-13" /></svg></button>
+            </div>
+          </article><article class="item compact">
+            <div class="thumb thumb-empty">A</div>
+            <div class="item-main">
+              <div class="item-title">Adaga</div>
+              <div class="item-meta">
+                <span class="price">2 PO</span>
+                <span class="muted">Infinito</span>
+                <span class="muted">0,50 kg</span>
+              </div>
+            </div>
+            <div class="item-side">
+              <button type="button" class="btn icon-only ghost" data-action="edit-stock" data-id="stock-3" title="Editar"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L20 8l-4-4L4 16v4Z" /></svg></button>
+              <button type="button" class="btn icon-only ghost" data-action="delete-stock" data-id="stock-3" title="Excluir" data-confirm="Tem certeza que deseja excluir?"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13h8l1-13" /></svg></button>
+            </div>
+          </article></div>
+  </section><section class="section">
+    <header class="section-head">
+      <h2>Serviços</h2>
+      <div class="section-actions"><button type="button" class="btn ghost" data-action="new-service"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg><span>Adicionar serviço</span></button></div>
+    </header>
+    
+    <div class="list"><article class="item compact">
+            <div class="thumb thumb-empty">C</div>
+            <div class="item-main">
+              <div class="item-title">Conserto de armadura</div>
+              <div class="item-meta">
+                <span class="price">10 PO</span>
+                
+              </div>
+            </div>
+            <div class="item-side">
+              <button type="button" class="btn icon-only ghost" data-action="edit-service" data-id="svc-1" title="Editar"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L20 8l-4-4L4 16v4Z" /></svg></button>
+              <button type="button" class="btn icon-only ghost" data-action="delete-service" data-id="svc-1" title="Excluir" data-confirm="Tem certeza que deseja excluir?"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13h8l1-13" /></svg></button>
+            </div>
+          </article></div>
+  </section><section class="section">
+    <header class="section-head">
+      <h2>Adicionar do meu inventário</h2>
+      
+    </header>
+    
+    <div class="list"><article class="item compact">
+            <div class="thumb thumb-empty">P</div>
+            <div class="item-main"><div class="item-title">Poção de cura</div></div>
+            <div class="item-side">
+              <button type="button" class="btn ghost" data-action="stock-from-inventory" data-id="inv-1"><span>Adicionar</span></button>
+            </div>
+          </article><article class="item compact">
+            <div class="thumb thumb-empty">A</div>
+            <div class="item-main"><div class="item-title">Anel antigo</div></div>
+            <div class="item-side">
+              <button type="button" class="btn ghost" data-action="stock-from-inventory" data-id="inv-2"><span>Adicionar</span></button>
+            </div>
+          </article></div>
+  </section><section class="section">
+    <header class="section-head">
+      <h2>Multiplicadores de raridade desta loja</h2>
+      
+    </header>
+    
+    <div class="grid2"><label class="field"><span class="field-label">Comum</span><input type="number" class="input" data-field="shop-rarity" data-action="shop-rarity" data-id="common" min="0" step="0.05" value="1" /></label><label class="field"><span class="field-label">Incomum</span><input type="number" class="input" data-field="shop-rarity" data-action="shop-rarity" data-id="uncommon" min="0" step="0.05" value="1.25" /></label><label class="field"><span class="field-label">Raro</span><input type="number" class="input" data-field="shop-rarity" data-action="shop-rarity" data-id="rare" min="0" step="0.05" value="2" /></label><label class="field"><span class="field-label">Muito raro</span><input type="number" class="input" data-field="shop-rarity" data-action="shop-rarity" data-id="veryRare" min="0" step="0.05" value="2" /></label><label class="field"><span class="field-label">Lendário</span><input type="number" class="input" data-field="shop-rarity" data-action="shop-rarity" data-id="legendary" min="0" step="0.05" value="3" /></label><label class="field"><span class="field-label">Artefato</span><input type="number" class="input" data-field="shop-rarity" data-action="shop-rarity" data-id="artifact" min="0" step="0.05" value="5" /></label></div>
+    <div class="row wrap">
+      <button type="button" class="btn ghost" data-action="shop-rarity-reset"><span>Usar multiplicadores globais</span></button>
+    </div>
+  </section><div class="row wrap">
+    <button type="button" class="btn danger" data-action="delete-shop" data-id="token-1" data-confirm="Tem certeza que deseja excluir?"><span>Excluir · Mercador</span></button>
+  </div></main>
+    <nav class="tabbar"><button type="button" class="btn ghost" data-action="back"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7" /></svg><span>Voltar</span></button></nav>
+    
+  </div></div><div class="screen" data-screen="9"><div class="app">
+      <header class="app-header">
+        <div class="brand">
+          <div class="thumb thumb-empty">M</div>
+          <div class="brand-text"><h1>Mercadora Elfa</h1></div>
+        </div>
+        <div class="header-actions"><select class="input tiny" data-field="lang"><option value="pt-BR" selected>PT</option><option value="en">EN</option></select></div>
+      </header>
+      <main class="app-body">
+        <section class="section">
+    <header class="section-head">
+      <h2>Este token ainda não é um mercador.</h2>
+      
+    </header>
+    <p class="section-hint">Ative o modo mercador para começar a vender.</p>
+    <div class="row wrap"><button type="button" class="btn primary" data-action="create-shop" data-id="token-2"><span>Tornar loja</span></button></div>
+  </section>
+      </main>
+      <nav class="tabbar"><button type="button" class="btn ghost" data-action="back"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7" /></svg><span>Voltar</span></button></nav>
+      
+    </div></div>
+  </div>
+<script>
+  const buttons = document.querySelectorAll('.side button');
+  const screens = document.querySelectorAll('.stage .screen');
+  buttons.forEach((button) => {
+    button.addEventListener('click', () => {
+      buttons.forEach((b) => b.classList.remove('active'));
+      screens.forEach((s) => s.classList.remove('active'));
+      button.classList.add('active');
+      const screen = document.querySelector('.stage .screen[data-screen="' + button.dataset.index + '"]');
+      if (screen) screen.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>

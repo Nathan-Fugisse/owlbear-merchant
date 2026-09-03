@@ -24,16 +24,6 @@ import { renderSettings } from "./views/settings";
 import { renderShops } from "./views/shops";
 import { renderWallet } from "./views/wallet";
 
-function appClass(extra = ""): string {
-  const theme = localStorage.getItem("merchant-theme") === "light" ? "light" : "dark";
-  return `app ${theme}${extra ? ` ${extra}` : ""}`;
-}
-
-function themeToggle(): string {
-  const light = localStorage.getItem("merchant-theme") === "light";
-  return `<button type="button" class="btn icon-only ghost theme-toggle" data-action="toggle-theme" title="${light ? "Dark mode" : "Light mode"}" aria-label="${light ? "Dark mode" : "Light mode"}">${icon(light ? "moon" : "sun")}</button>`;
-}
-
 function langSelect(): string {
   return select({
     field: "lang",
@@ -90,7 +80,7 @@ function homeTabs(): string {
 
 function renderHomeScreen(): string {
   const lang = state.lang;
-  return `<div class="${appClass()}">
+  return `<div class="app">
     <header class="app-header">
       <div class="brand">
         <span class="brand-icon">${icon("bag")}</span>
@@ -105,7 +95,6 @@ function renderHomeScreen(): string {
           state.role === "GM" ? t(lang, "common.gm") : t(lang, "common.player"),
           state.role === "GM" ? "gm" : "",
         )}
-        ${themeToggle()}
       </div>
     </header>
     <main class="app-body">${homeContent()}</main>
@@ -127,8 +116,8 @@ function renderShopScreen(): string {
   });
 
   if (!token) {
-    return `<div class="${appClass()}">
-      <header class="app-header"><div class="brand"><span class="brand-icon">${icon("bag")}</span><div class="brand-text"><h1>${esc(t(lang, "app.title"))}</h1></div></div><div class="header-actions">${themeToggle()}</div></header>
+    return `<div class="app">
+      <header class="app-header"><div class="brand"><span class="brand-icon">${icon("bag")}</span><div class="brand-text"><h1>${esc(t(lang, "app.title"))}</h1></div></div></header>
       <main class="app-body">${empty(t(lang, "shops.empty"))}</main>
       <nav class="tabbar">${back}</nav>
       ${toastHtml()}
@@ -137,13 +126,13 @@ function renderShopScreen(): string {
 
   if (!token.shop) {
     const canCreate = state.role === "GM";
-    return `<div class="${appClass()}">
+    return `<div class="app">
       <header class="app-header">
         <div class="brand">
           ${thumb(token.image, token.name)}
           <div class="brand-text"><h1>${esc(token.name)}</h1></div>
         </div>
-        <div class="header-actions">${langSelect()}${themeToggle()}</div>
+        <div class="header-actions">${langSelect()}</div>
       </header>
       <main class="app-body">
         ${section(
@@ -170,13 +159,13 @@ function renderShopScreen(): string {
 
   // Loja desativada: jogadores nao veem nada, o Mestre/responsavel gerencia
   if (!token.shop.enabled && !manage) {
-    return `<div class="${appClass()}">
+    return `<div class="app">
       <header class="app-header">
         <div class="brand">
           ${thumb(token.image, token.name)}
           <div class="brand-text"><h1>${esc(token.name)}</h1></div>
         </div>
-        <div class="header-actions">${langSelect()}${themeToggle()}</div>
+        <div class="header-actions">${langSelect()}</div>
       </header>
       <main class="app-body">${empty(t(lang, "shop.notMerchantPlayer"))}</main>
       <nav class="tabbar">${btn({ label: t(lang, "common.back"), action: "back", iconName: "back" })}</nav>
@@ -198,7 +187,7 @@ function renderShopScreen(): string {
       ? `<p class="greeting">“${esc(token.shop.greeting)}”</p>`
       : "";
 
-  return `<div class="${appClass("shop-app")}">
+  return `<div class="app">
     <header class="app-header">
       <div class="brand">
         ${thumb(token.image, token.shop.name || token.name)}
@@ -207,7 +196,7 @@ function renderShopScreen(): string {
           ${token.shop.enabled ? "" : badge(t(lang, "common.disabled2"))}
         </div>
       </div>
-      <div class="header-actions">${langSelect()}${themeToggle()}</div>
+      <div class="header-actions">${langSelect()}</div>
     </header>
     ${renderShopTabs(token, tab)}
     <main class="app-body">${greeting}${body}</main>
@@ -218,7 +207,7 @@ function renderShopScreen(): string {
 
 export function renderApp(): string {
   if (!state.ready) {
-    return `<div class="${appClass()}"><div class="loading">${esc(t(state.lang, "app.loading"))}</div></div>`;
+    return `<div class="app"><div class="loading">${esc(t(state.lang, "app.loading"))}</div></div>`;
   }
   return state.route.name === "shop" ? renderShopScreen() : renderHomeScreen();
 }

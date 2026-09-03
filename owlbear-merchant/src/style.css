@@ -1,16 +1,16 @@
 :root {
-  --bg: #15120f;
-  --card: #211b16;
-  --card-2: #2a221b;
-  --line: #49392a;
-  --text: #eee4d2;
-  --muted: #aa9b87;
-  --accent: #b88645;
-  --accent-soft: rgba(184, 134, 69, 0.16);
-  --gold: #d9aa58;
-  --green: #6da66f;
-  --red: #b85f55;
-  --radius: 9px;
+  --bg: #171622;
+  --card: #211f2e;
+  --card-2: #2a2839;
+  --line: #37354c;
+  --text: #ece9f5;
+  --muted: #9c99b6;
+  --accent: #8b7bff;
+  --accent-soft: rgba(139, 123, 255, 0.16);
+  --gold: #f2c14e;
+  --green: #59c27a;
+  --red: #e2585f;
+  --radius: 10px;
   color-scheme: dark;
 }
 
@@ -56,41 +56,6 @@ body {
   color: var(--muted);
 }
 
-.app::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.16;
-  background-image: repeating-linear-gradient(0deg, transparent 0, transparent 3px, rgba(255,255,255,.018) 4px);
-}
-
-.app {
-  position: relative;
-  box-shadow: inset 0 0 0 1px rgba(217, 170, 88, 0.08);
-}
-
-.app-header {
-  position: relative;
-}
-
-.section {
-  border-color: rgba(184, 134, 69, 0.28);
-  box-shadow: 0 8px 22px rgba(0,0,0,.12);
-}
-
-.section-head h2 {
-  letter-spacing: .02em;
-}
-
-.item {
-  border-color: rgba(184, 134, 69, 0.18);
-}
-
-.btn.primary, .btn.success {
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 3px 10px rgba(0,0,0,.18);
-}
-
 /* ---------------------------------------------------------------- header -- */
 
 .app-header {
@@ -98,8 +63,7 @@ body {
   align-items: center;
   gap: 10px;
   padding: 10px 12px;
-  background: linear-gradient(180deg, #2a2119 0%, #1d1712 100%);
-  box-shadow: 0 1px 0 rgba(255, 218, 158, 0.05), 0 8px 24px rgba(0, 0, 0, 0.22);
+  background: linear-gradient(180deg, #221f33, #1c1b28);
   border-bottom: 1px solid var(--line);
   flex: 0 0 auto;
 }
@@ -769,56 +733,4 @@ textarea.input {
   .input.search {
     width: 110px;
   }
-}
-
-/* ------------------------------ light theme ----------------------------- */
-.app.light {
-  --bg: #eee8dc;
-  --card: #faf7ef;
-  --card-2: #f2ecdf;
-  --line: #d5c7b1;
-  --text: #342b22;
-  --muted: #76695b;
-  --accent: #8c5f2d;
-  --accent-soft: rgba(140, 95, 45, 0.10);
-  --gold: #9b6a2d;
-  --green: #4d7d52;
-  --red: #a24d43;
-  color-scheme: light;
-}
-
-.app.light .app-header {
-  background: linear-gradient(180deg, #fbf8f0 0%, #e9dfcf 100%);
-  box-shadow: 0 1px 0 rgba(87, 58, 29, 0.08), 0 8px 20px rgba(87, 58, 29, 0.08);
-}
-
-.app.light .section,
-.app.light .item {
-  box-shadow: 0 4px 14px rgba(87, 58, 29, 0.06);
-}
-
-.app.light .app-body {
-  background: radial-gradient(circle at top, rgba(255,255,255,.55), transparent 42%);
-}
-
-.app.light .input,
-.app.light textarea,
-.app.light select {
-  background: #fffdf8;
-}
-
-.app.light .greeting {
-  background: linear-gradient(135deg, #f8eed9, #eee0c7);
-  border-color: #c9a878;
-  color: #5c4630;
-}
-
-.theme-toggle {
-  min-width: 34px;
-  padding-inline: 8px;
-}
-
-.theme-toggle svg {
-  width: 16px;
-  height: 16px;
 }

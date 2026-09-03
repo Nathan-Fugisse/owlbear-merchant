@@ -1,6 +1,6 @@
 {
   "name": "owlbear-merchant",
-  "version": "1.1.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "description": "Extensao de loja/mercador para Owlbear Rodeo com moedas totalmente configuraveis",
@@ -16,11 +16,8 @@
   "scripts": {
     "dev": "vite",
     "typecheck": "tsc --noEmit",
-    "build": "tsc --noEmit && vite build",
-    "preview": "vite preview",
-    "smoke": "node scripts/smoke.mjs",
-    "preview:build": "node scripts/preview.mjs",
-    "zip": "node scripts/zip.mjs"
+    "build": "npm run typecheck && vite build",
+    "preview": "vite preview"
   },
   "dependencies": {
     "@owlbear-rodeo/sdk": "^3.1.0"

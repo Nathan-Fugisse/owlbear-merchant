@@ -55,7 +55,7 @@ Interface em **Português (PT-BR)** e **Inglês**, com seletor de idioma.
 3. Em **Add a custom extension**, cole a URL do manifesto:
 
 ```text
-https://nathan-fugisse-owlbear-merchant.netlify.app/manifest.json
+https://owlbear-merchant.vercel.app/manifest.json
 ```
 
 4. Clique em **Add** e, depois, **ative a extensão na sala** (menu `...` → Extensions).

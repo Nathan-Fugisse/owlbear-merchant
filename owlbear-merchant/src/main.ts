@@ -110,25 +110,17 @@ function clone<T>(value: T): T {
 function applyEditField(path: string, raw: string | boolean, type: string): void {
   const draft = getDraft();
   if (!draft) return;
-
+  const record = draft as unknown as Record<string, unknown>;
   let value: unknown = raw;
   if (type === "number") value = toNumber(raw, 0);
-  if (type === "checkbox") value = raw === true;
-
-  // Always update through the editor state setter. Mutating the old draft
-  // after updateDraft() used to update a stale object, so price/currency and
-  // other nested fields appeared editable but were lost when saving.
+  if (type === "checkbox") value = (raw as unknown) === true;
+  updateDraft({});
   if (path.includes(".")) {
     const [head, tail] = path.split(".");
-    const nested = (draft as unknown as Record<string, unknown>)[head];
-    updateDraft({
-      [head]: {
-        ...((nested ?? {}) as Record<string, unknown>),
-        [tail]: value,
-      },
-    });
+    const nested = (record[head] ?? {}) as Record<string, unknown>;
+    (record as Record<string, unknown>)[head] = { ...nested, [tail]: value };
   } else {
-    updateDraft({ [path]: value });
+    (record as Record<string, unknown>)[path] = value;
   }
 }
 
@@ -200,12 +192,6 @@ app.addEventListener("click", (event) => {
   if (data.confirm && !window.confirm(data.confirm)) return;
 
   switch (action) {
-    case "toggle-theme": {
-      const next = localStorage.getItem("merchant-theme") === "light" ? "dark" : "light";
-      localStorage.setItem("merchant-theme", next);
-      requestRender();
-      return;
-    }
     case "dismiss-toast":
       state.toast = undefined;
       requestRender();
@@ -317,22 +303,6 @@ app.addEventListener("click", (event) => {
         );
         requestRender();
       }
-      return;
-    }
-    case "delete-stock": {
-      const shopId = currentShopId();
-      if (!shopId || !data.id) return;
-      void updateShop(shopId, (draft) => {
-        draft.stock = draft.stock.filter((entry) => entry.id !== data.id);
-      });
-      return;
-    }
-    case "delete-service": {
-      const shopId = currentShopId();
-      if (!shopId || !data.id) return;
-      void updateShop(shopId, (draft) => {
-        draft.services = draft.services.filter((service) => service.id !== data.id);
-      });
       return;
     }
     case "delete-inventory":
