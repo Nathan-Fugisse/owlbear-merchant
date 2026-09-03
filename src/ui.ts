@@ -13,7 +13,9 @@ const ICONS: Record<string, string> = {
   up: "m6 15 6-6 6 6",
   down: "m6 9 6 6 6-6",
   copy: "M9 9h9v9H9V9Zm-3 3H3V3h9v3",
-  gear: "M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z",
+  gear: "M12 9a3 3 0 1 0 0 6 3 3 0 0 0-6Z",
+  sun: "M12 3v2m0 14v2M5.64 5.64l1.42 1.42m9.88 9.88 1.42 1.42M3 12h2m14 0h2M5.64 18.36l1.42-1.42m9.88-9.88 1.42-1.42M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10Z",
+  moon: "M20 15.5A8 8 0 0 1 8.5 4 8 8 0 1 0 20 15.5Z",
 };
 
 export function icon(name: keyof typeof ICONS | string): string {

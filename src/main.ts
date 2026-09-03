@@ -192,6 +192,12 @@ app.addEventListener("click", (event) => {
   if (data.confirm && !window.confirm(data.confirm)) return;
 
   switch (action) {
+    case "toggle-theme": {
+      const next = localStorage.getItem("merchant-theme") === "light" ? "dark" : "light";
+      localStorage.setItem("merchant-theme", next);
+      requestRender();
+      return;
+    }
     case "dismiss-toast":
       state.toast = undefined;
       requestRender();
