@@ -47,13 +47,17 @@ export type ItemBase = {
 };
 
 /** Item a venda na loja. `quantity` = -1 significa estoque infinito. */
-export type StockEntry = ItemBase & { quantity: number };
+export type CatalogItem = ItemBase;
+export type CatalogService = ServiceEntry;
+
+export type StockEntry = ItemBase & { quantity: number; catalogId?: string };
 
 /** Item no inventario de um jogador. */
 export type InventoryEntry = ItemBase & { quantity: number };
 
 /** Servico contratavel (estalagem, cura, transporte...). */
 export type ServiceEntry = {
+  catalogId?: string;
   id: string;
   name: string;
   description: string;
@@ -152,4 +156,6 @@ export type EditTarget =
   | { kind: "stock"; entryId: string | null }
   | { kind: "service"; entryId: string | null }
   | { kind: "inventory"; entryId: string | null; walletId: string }
+  | { kind: "catalog-item"; entryId: string | null }
+  | { kind: "catalog-service"; entryId: string | null }
   | null;

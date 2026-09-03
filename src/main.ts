@@ -12,12 +12,19 @@ import {
   updateInventoryItem,
 } from "./actions";
 import { defaultCurrencies, normalizeMoney } from "./currency";
+import { sanitizeSettings } from "./defaults";
 import { newStockEntry, newServiceEntry, sanitizeShop, sanitizeWallet } from "./defaults";
 import { clearEditor, getDraft, getTarget, setEditor, updateDraft } from "./editor";
 import { renderApp } from "./render";
 import {
   createShop,
   deleteShop,
+  addCatalogItem,
+  addCatalogService,
+  updateCatalogItem,
+  updateCatalogService,
+  deleteCatalogItem,
+  deleteCatalogService,
   getShop,
   initApp,
   myWallet,
@@ -39,6 +46,8 @@ import {
 } from "./state";
 import { t } from "./i18n";
 import type {
+  CatalogItem,
+  CatalogService,
   Currency,
   InventoryEntry,
   Lang,
@@ -47,7 +56,7 @@ import type {
   StockEntry,
 } from "./types";
 import { clamp, toNumber, uid } from "./util";
-import { getPresets, newCurrencyId } from "./views/settings";
+import { getBackupText, getPresets, newCurrencyId, setBackupText } from "./views/settings";
 
 const app = document.getElementById("app") as HTMLDivElement;
 
@@ -161,6 +170,12 @@ async function normalizeAfterCurrencyChange(): Promise<void> {
   }
   await saveWallets(wallets as never);
 
+  state.catalog = {
+    items: state.catalog.items.map((item) => ({ ...item, price: fixPrice(item.price) })),
+    services: state.catalog.services.map((service) => ({ ...service, price: fixPrice(service.price) })),
+  };
+  localStorage.setItem("owlbear-merchant:catalog:v1", JSON.stringify(state.catalog));
+
   for (const token of state.tokens) {
     if (!token.shop) continue;
     void updateShop(token.id, (draft) => {
@@ -261,6 +276,58 @@ app.addEventListener("click", (event) => {
     case "hire": {
       const shopId = currentShopId();
       if (shopId) void hireService(shopId, data.id ?? "");
+      return;
+    }
+
+    /* ---- biblioteca de itens/servicos ---- */
+    case "new-catalog-item": {
+      const item = newStockEntry(state.settings.currencies);
+      addCatalogItem(item);
+      setEditor({ kind: "catalog-item", entryId: item.id }, clone(item));
+      requestRender();
+      return;
+    }
+    case "new-catalog-service": {
+      const service = newServiceEntry(state.settings.currencies);
+      addCatalogService(service);
+      setEditor({ kind: "catalog-service", entryId: service.id }, clone(service));
+      requestRender();
+      return;
+    }
+    case "delete-catalog-item":
+      deleteCatalogItem(data.id ?? "");
+      return;
+    case "delete-catalog-service":
+      deleteCatalogService(data.id ?? "");
+      return;
+    case "add-catalog-item-to-shop": {
+      const shopId = currentShopId();
+      const item = state.catalog.items.find((x) => x.id === data.id);
+      if (shopId && item) void updateShop(shopId, (draft) => {
+        if (!draft.stock.some((x) => x.catalogId === item.id)) {
+          draft.stock = [...draft.stock, { ...clone(item), catalogId: item.id, quantity: 1 }];
+        }
+      });
+      return;
+    }
+    case "add-catalog-service-to-shop": {
+      const shopId = currentShopId();
+      const service = state.catalog.services.find((x) => x.id === data.id);
+      if (shopId && service) void updateShop(shopId, (draft) => {
+        if (!draft.services.some((x) => x.catalogId === service.id)) {
+          draft.services = [...draft.services, { ...clone(service), catalogId: service.id }];
+        }
+      });
+      return;
+    }
+    case "edit-catalog-item": {
+      const entry = state.catalog.items.find((x) => x.id === data.id);
+      if (entry) { setEditor({ kind: "catalog-item", entryId: entry.id }, clone(entry)); requestRender(); }
+      return;
+    }
+    case "edit-catalog-service": {
+      const entry = state.catalog.services.find((x) => x.id === data.id);
+      if (entry) { setEditor({ kind: "catalog-service", entryId: entry.id }, clone(entry)); requestRender(); }
       return;
     }
 
@@ -447,23 +514,48 @@ app.addEventListener("click", (event) => {
     case "export-json": {
       const payload = {
         format: "owlbear-merchant-backup",
-        version: 1,
+        version: 2,
         exportedAt: new Date().toISOString(),
         settings: state.settings,
         wallets: state.wallets,
         orders: state.orders,
         shops: state.shops,
+        catalog: state.catalog,
       };
       const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
-      const anchor = document.createElement("a");
-      anchor.href = url;
-      anchor.download = `owlbear-merchant-backup-${new Date().toISOString().slice(0, 10)}.json`;
-      document.body.appendChild(anchor);
-      anchor.click();
-      anchor.remove();
-      URL.revokeObjectURL(url);
-      toast(msg("settings.backupDownloaded"), "success");
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `owlbear-merchant-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(link); link.click(); link.remove(); URL.revokeObjectURL(url);
+      toast("Backup JSON criado.", "success");
+      return;
+    }
+    case "import-json": {
+      const input = document.createElement("input");
+      input.type = "file"; input.accept = "application/json,.json";
+      input.onchange = () => {
+        const file = input.files?.[0]; if (!file) return;
+        void file.text().then(async (text) => {
+          try {
+            const parsed = JSON.parse(text) as any;
+            if (parsed.format !== "owlbear-merchant-backup") throw new Error("Formato inválido");
+            if (parsed.catalog) localStorage.setItem("owlbear-merchant:catalog:v1", JSON.stringify(parsed.catalog));
+            const next: Settings = sanitizeSettings(parsed.settings, state.lang);
+            await saveSettings(next);
+            await saveWallets(parsed.wallets ?? {});
+            await saveOrders(parsed.orders ?? []);
+            state.catalog = parsed.catalog ?? { items: [], services: [] };
+            state.shops = parsed.shops ?? {};
+            localStorage.setItem(`owlbear-merchant:data:${state.roomKey}`, JSON.stringify({ version: 2, settings: state.settings, wallets: state.wallets, orders: state.orders, shops: state.shops }));
+            await refreshTokens(); requestRender();
+            toast("Backup restaurado com sucesso.", "success");
+          } catch (error) {
+            console.error(error); toast("Não foi possível restaurar este backup.", "error");
+          }
+        });
+      };
+      input.click();
       return;
     }
     case "shop-rarity-reset": {
@@ -528,6 +620,9 @@ app.addEventListener("change", (event) => {
     }
     case "search":
       setState({ search: value });
+      return;
+    case "backup-text":
+      setBackupText(value);
       return;
 
     /* ---- loja ---- */
@@ -647,6 +742,9 @@ app.addEventListener("input", (event) => {
     setState({ search: input.value });
     return;
   }
+  if (data.field === "backup-text") {
+    setBackupText(input.value);
+  }
 });
 
 /* Imagens quebradas nao devem mostrar o icone de erro do navegador */
@@ -669,7 +767,29 @@ async function saveEditor(): Promise<void> {
   if (!target || !draft) return;
   const currencies = state.settings.currencies;
 
-  if (target.kind === "stock") {
+  if (target.kind === "catalog-item") {
+    const entry: CatalogItem = {
+      ...(draft as CatalogItem),
+      id: (draft as CatalogItem).id || uid("item"),
+      name: (draft as CatalogItem).name || "Item",
+      price: {
+        amount: Math.max(0, toNumber((draft as CatalogItem).price.amount, 0)),
+        currencyId: (draft as CatalogItem).price.currencyId || currencies[0]?.id || "",
+      },
+    };
+    updateCatalogItem(entry);
+  } else if (target.kind === "catalog-service") {
+    const entry: CatalogService = {
+      ...(draft as CatalogService),
+      id: (draft as CatalogService).id || uid("svc"),
+      name: (draft as CatalogService).name || "Serviço",
+      price: {
+        amount: Math.max(0, toNumber((draft as CatalogService).price.amount, 0)),
+        currencyId: (draft as CatalogService).price.currencyId || currencies[0]?.id || "",
+      },
+    };
+    updateCatalogService(entry);
+  } else if (target.kind === "stock") {
     const shopId = currentShopId();
     if (!shopId) return;
     const entry: StockEntry = {
@@ -681,11 +801,16 @@ async function saveEditor(): Promise<void> {
         currencyId: (draft as StockEntry).price.currencyId || currencies[0]?.id || "",
       },
     };
-    await updateShop(shopId, (shop) => {
-      shop.stock = target.entryId
-        ? shop.stock.map((stock) => (stock.id === target.entryId ? entry : stock))
-        : [...shop.stock, entry];
-    });
+    if (entry.catalogId) {
+      const { quantity: _quantity, ...catalogItem } = entry;
+      updateCatalogItem(catalogItem as CatalogItem);
+    } else {
+      await updateShop(shopId, (shop) => {
+        shop.stock = target.entryId
+          ? shop.stock.map((stock) => (stock.id === target.entryId ? entry : stock))
+          : [...shop.stock, entry];
+      });
+    }
   } else if (target.kind === "service") {
     const shopId = currentShopId();
     if (!shopId) return;
@@ -699,13 +824,17 @@ async function saveEditor(): Promise<void> {
           (draft as ServiceEntry).price.currencyId || currencies[0]?.id || "",
       },
     };
-    await updateShop(shopId, (shop) => {
-      shop.services = target.entryId
-        ? shop.services.map((service) =>
-            service.id === target.entryId ? entry : service,
-          )
-        : [...shop.services, entry];
-    });
+    if (entry.catalogId) {
+      updateCatalogService(entry);
+    } else {
+      await updateShop(shopId, (shop) => {
+        shop.services = target.entryId
+          ? shop.services.map((service) =>
+              service.id === target.entryId ? entry : service,
+            )
+          : [...shop.services, entry];
+      });
+    }
   } else {
     const entry: InventoryEntry = {
       ...(draft as InventoryEntry),

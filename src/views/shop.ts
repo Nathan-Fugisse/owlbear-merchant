@@ -387,27 +387,28 @@ export function renderManageTab(token: TokenInfo): string {
     })}
   </div>`;
 
-  return editor + general + funds + stockList + serviceList + quickAdd + raritySection + danger;
+  const library = section("Biblioteca", `<div class="list">${state.catalog.items.map((item) => `<article class="item compact"><div class="item-main"><div class="item-title">${esc(item.name || "Item")}</div></div><div class="item-side">${btn({label:"Adicionar",action:"add-catalog-item-to-shop",id:item.id,kind:"primary"})}</div></article>`).join("")}${state.catalog.services.map((service) => `<article class="item compact"><div class="item-main"><div class="item-title">${esc(service.name || "Serviço")}</div></div><div class="item-side">${btn({label:"Adicionar",action:"add-catalog-service-to-shop",id:service.id,kind:"primary"})}</div></article>`).join("")}</div>`, { hint: "Itens e serviços adicionados daqui são referências leves à biblioteca." });
+  return editor + general + funds + stockList + serviceList + library + quickAdd + raritySection + danger;
 }
 
 /* -------------------------------------------------------------------------- */
 /* Editor de item / servico                                                   */
 /* -------------------------------------------------------------------------- */
 
-function renderEditor(
-  kind: "stock" | "service" | "inventory",
-  draft: StockEntry | ServiceEntry | InventoryEntry | null,
+export function renderEditor(
+  kind: "stock" | "service" | "inventory" | "catalog-item" | "catalog-service",
+  draft: StockEntry | ServiceEntry | InventoryEntry | import("../types").CatalogItem | import("../types").CatalogService | null,
   currencies: Currency[],
 ): string {
   if (!draft) return "";
   const lang = state.lang;
-  const isService = kind === "service";
+  const isService = kind === "service" || kind === "catalog-service";
   const entry = draft as StockEntry;
   const title = isService
     ? entry.id
       ? t(lang, "shop.editService")
       : t(lang, "shop.newService")
-    : entry.id && kind === "stock"
+    : entry.id && (kind === "stock" || kind === "catalog-item")
       ? t(lang, "shop.editItem")
       : t(lang, "shop.newItem");
 
@@ -462,7 +463,7 @@ function renderEditor(
               t(lang, "common.weight"),
               input({ field: "edit", editField: "weight", type: "number", value: entry.weight, min: 0, step: 0.1 }),
             )}
-            ${field(
+            ${kind === "catalog-item" ? "" : field(
               kind === "stock" ? t(lang, "shop.stockQuantity") : t(lang, "common.quantity"),
               input({ field: "edit", editField: "quantity", type: "number", value: entry.quantity, step: 1 }),
             )}

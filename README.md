@@ -30,7 +30,7 @@ Interface em **Português (PT-BR)** e **Inglês**, com seletor de idioma.
 - **Estoque** com quantidade (`-1` = infinito), preço por moeda, raridade, peso e descrição.
 - **Serviços** (estalagem, conserto, cura…) que geram **pedidos** para o Mestre resolver.
 - Edite a **carteira e o inventário de qualquer jogador** da sala.
-- Histórico de transações, armazenamento local por sala e exportação de backup em JSON.
+- Histórico de transações, medidor de uso do metadata e backup/importação da configuração em JSON.
 
 **Para os jogadores**
 
