@@ -74,8 +74,6 @@ export type ShopData = {
   priceMultiplier: number;
   /** Multiplicador do valor pago ao jogador (0.5 = metade do preco) */
   payoutMultiplier: number;
-  /** Distancia maxima em celulas de grid; 0 = desativado */
-  interactionRange: number;
   /** Ignora os fundos do mercador (dinheiro infinito) */
   infiniteFunds: boolean;
   funds: Money;
@@ -127,7 +125,6 @@ export type Settings = {
   currencies: Currency[];
   defaultPriceMultiplier: number;
   defaultPayoutMultiplier: number;
-  defaultInteractionRange: number;
   /** Multiplicadores padrao por raridade */
   rarityMultipliers: Record<RarityKey, number>;
   /** Mostrar aviso de peso no inventario */

@@ -44,7 +44,6 @@ const shop = {
   greeting: "Bem-vindo à minha loja!",
   priceMultiplier: 1,
   payoutMultiplier: 0.5,
-  interactionRange: 0,
   infiniteFunds: true,
   funds: { ouro: 500, prata: 0, cobre: 0 },
   allowPlayerManage: false,

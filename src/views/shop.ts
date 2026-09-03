@@ -213,10 +213,6 @@ export function renderManageTab(token: TokenInfo): string {
         t(lang, "shop.name"),
         input({ field: "shop-name", value: shop.name, action: "shop-field", id: token.id, placeholder: token.name }),
       )}
-      ${field(
-        t(lang, "shop.interactionRange"),
-        input({ field: "shop-range", type: "number", value: shop.interactionRange, min: 0, step: 1, action: "shop-field", id: token.id }),
-      )}
     </div>
     ${field(
       t(lang, "shop.greeting"),

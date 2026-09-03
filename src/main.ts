@@ -449,7 +449,6 @@ app.addEventListener("click", (event) => {
         currencies: state.settings.currencies,
         defaultPriceMultiplier: state.settings.defaultPriceMultiplier,
         defaultPayoutMultiplier: state.settings.defaultPayoutMultiplier,
-        defaultInteractionRange: state.settings.defaultInteractionRange,
         rarityMultipliers: state.settings.rarityMultipliers,
         showRarity: state.settings.showRarity,
       };
@@ -477,10 +476,6 @@ app.addEventListener("click", (event) => {
             defaultPayoutMultiplier: toNumber(
               parsed.defaultPayoutMultiplier,
               state.settings.defaultPayoutMultiplier,
-            ),
-            defaultInteractionRange: toNumber(
-              parsed.defaultInteractionRange,
-              state.settings.defaultInteractionRange,
             ),
             rarityMultipliers: {
               ...state.settings.rarityMultipliers,
@@ -566,7 +561,6 @@ app.addEventListener("change", (event) => {
     /* ---- loja ---- */
     case "shop-name":
     case "shop-greeting":
-    case "shop-range":
     case "shop-price":
     case "shop-payout": {
       const shopId = currentShopId();
@@ -574,7 +568,6 @@ app.addEventListener("change", (event) => {
       void updateShop(shopId, (draft) => {
         if (field === "shop-name") draft.name = value.slice(0, 60);
         if (field === "shop-greeting") draft.greeting = value.slice(0, 300);
-        if (field === "shop-range") draft.interactionRange = Math.max(0, toNumber(value, 0));
         if (field === "shop-price") draft.priceMultiplier = Math.max(0, toNumber(value, 1));
         if (field === "shop-payout") draft.payoutMultiplier = Math.max(0, toNumber(value, 0.5));
       });
@@ -618,9 +611,6 @@ app.addEventListener("change", (event) => {
       return;
     case "setting-payout":
       void patchSettings({ defaultPayoutMultiplier: Math.max(0, toNumber(value, 0.5)) });
-      return;
-    case "setting-range":
-      void patchSettings({ defaultInteractionRange: Math.max(0, toNumber(value, 0)) });
       return;
     case "setting-showRarity":
       void patchSettings({ showRarity: checked });

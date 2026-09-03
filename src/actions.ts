@@ -1,4 +1,3 @@
-import OBR from "@owlbear-rodeo/sdk";
 import {
   addMoney,
   baseText,
@@ -34,33 +33,6 @@ function rarityMultiplier(shop: ReturnType<typeof getShop>, rarity: string): num
   const custom = shop.rarityMultipliers?.[rarity as never];
   if (typeof custom === "number") return custom;
   return state.settings.rarityMultipliers[rarity as never] ?? 1;
-}
-
-/** Verifica o alcance de interacao usando os tokens selecionados pelo jogador. */
-async function withinRange(itemId: string): Promise<boolean> {
-  const shop = getShop(itemId);
-  const range = shop?.interactionRange ?? 0;
-  if (range <= 0) return true;
-  if (!(await OBR.scene.isReady())) return true;
-  const selection = await OBR.player.getSelection();
-  if (!selection || selection.length === 0) return true;
-  const items = await OBR.scene.items.getItems(
-    (item) => item.id === itemId || selection.includes(item.id),
-  );
-  const merchant = items.find((item) => item.id === itemId);
-  if (!merchant) return true;
-  let best = Number.POSITIVE_INFINITY;
-  for (const item of items) {
-    if (item.id === itemId) continue;
-    const distance = await OBR.scene.grid.getDistance(
-      item.position,
-      merchant.position,
-    );
-    if (typeof distance === "number") best = Math.min(best, distance);
-  }
-  if (best <= range) return true;
-  toast(msg("shop.tooFar", { range }), "error");
-  return false;
 }
 
 function mergeInventory(
@@ -116,7 +88,6 @@ export async function buyItem(
     toast(msg("shop.outOfStock"), "error");
     return;
   }
-  if (!(await withinRange(itemId))) return;
 
   const multiplier = shop.priceMultiplier * rarityMultiplier(shop, entry.rarity);
   const unit = priceToBase(entry.price, currencies) * multiplier;
@@ -179,7 +150,6 @@ export async function sellItem(
   const currencies = state.settings.currencies;
   const qty = Math.min(quantity, entry.quantity);
   if (qty <= 0) return;
-  if (!(await withinRange(itemId))) return;
 
   const multiplier = shop.payoutMultiplier * rarityMultiplier(shop, entry.rarity);
   const unit = priceToBase(entry.price, currencies) * multiplier;
@@ -244,7 +214,6 @@ export async function hireService(
   if (!service || !service.active) return;
   const currencies = state.settings.currencies;
   const wallet = myWallet();
-  if (!(await withinRange(itemId))) return;
 
   const cost = clean(priceToBase(service.price, currencies));
   const result = pay(wallet.money, cost, currencies);

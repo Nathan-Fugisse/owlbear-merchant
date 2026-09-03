@@ -26,7 +26,7 @@ Interface em **Português (PT-BR)** e **Inglês**, com seletor de idioma.
 
 - Transforme qualquer token (camadas CHARACTER, MOUNT, PROP e ATTACHMENT) em mercador pelo menu de contexto.
 - Painel **Gerenciar**: nome, mensagem de saudação, multiplicador de venda/compra, fundos infinitos,
-  alcance de interação e multiplicadores por raridade.
+  multiplicadores por raridade.
 - **Estoque** com quantidade (`-1` = infinito), preço por moeda, raridade, peso e descrição.
 - **Serviços** (estalagem, conserto, cura…) que geram **pedidos** para o Mestre resolver.
 - Edite a **carteira e o inventário de qualquer jogador** da sala.

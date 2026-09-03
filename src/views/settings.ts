@@ -123,10 +123,6 @@ export function renderSettings(): string {
          t(lang, "settings.payoutMultiplier"),
          input({ field: "setting-payout", type: "number", value: settings.defaultPayoutMultiplier, step: 0.05, min: 0 }),
        )}
-       ${field(
-         t(lang, "settings.interactionRange"),
-         input({ field: "setting-range", type: "number", value: settings.defaultInteractionRange, step: 1, min: 0 }),
-       )}
        <div class="field-inline">
          ${checkbox({ field: "setting-showRarity", checked: settings.showRarity, label: t(lang, "settings.showRarity") })}
        </div>
