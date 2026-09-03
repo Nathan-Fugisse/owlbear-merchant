@@ -47,7 +47,7 @@ import type {
   StockEntry,
 } from "./types";
 import { clamp, toNumber, uid } from "./util";
-import { getBackupText, getPresets, newCurrencyId, setBackupText } from "./views/settings";
+import { getPresets, newCurrencyId } from "./views/settings";
 
 const app = document.getElementById("app") as HTMLDivElement;
 
@@ -446,51 +446,26 @@ app.addEventListener("click", (event) => {
       return;
     case "export-json": {
       const payload = {
-        currencies: state.settings.currencies,
-        defaultPriceMultiplier: state.settings.defaultPriceMultiplier,
-        defaultPayoutMultiplier: state.settings.defaultPayoutMultiplier,
-        rarityMultipliers: state.settings.rarityMultipliers,
-        showRarity: state.settings.showRarity,
+        format: "owlbear-merchant-backup",
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        settings: state.settings,
+        wallets: state.wallets,
+        orders: state.orders,
+        shops: state.shops,
       };
-      setBackupText(JSON.stringify(payload, null, 2));
-      void navigator.clipboard
-        ?.writeText(getBackupText())
-        .then(() => toast(msg("common.copied"), "success"))
-        .catch(() => undefined);
-      requestRender();
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = `owlbear-merchant-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      URL.revokeObjectURL(url);
+      toast(msg("settings.backupDownloaded"), "success");
       return;
     }
-    case "import-json":
-      void (async () => {
-        try {
-          const parsed = JSON.parse(getBackupText()) as Partial<Settings>;
-          const next: Settings = {
-            ...state.settings,
-            currencies: Array.isArray(parsed.currencies)
-              ? parsed.currencies
-              : state.settings.currencies,
-            defaultPriceMultiplier: toNumber(
-              parsed.defaultPriceMultiplier,
-              state.settings.defaultPriceMultiplier,
-            ),
-            defaultPayoutMultiplier: toNumber(
-              parsed.defaultPayoutMultiplier,
-              state.settings.defaultPayoutMultiplier,
-            ),
-            rarityMultipliers: {
-              ...state.settings.rarityMultipliers,
-              ...(parsed.rarityMultipliers ?? {}),
-            },
-            showRarity: parsed.showRarity ?? state.settings.showRarity,
-          };
-          await saveSettings(next);
-          await normalizeAfterCurrencyChange();
-          toast(msg("settings.importOk"), "success");
-        } catch {
-          toast(msg("settings.importFail"), "error");
-        }
-      })();
-      return;
     case "shop-rarity-reset": {
       const shopId = currentShopId();
       if (shopId) {
@@ -553,9 +528,6 @@ app.addEventListener("change", (event) => {
     }
     case "search":
       setState({ search: value });
-      return;
-    case "backup-text":
-      setBackupText(value);
       return;
 
     /* ---- loja ---- */
@@ -674,9 +646,6 @@ app.addEventListener("input", (event) => {
   if (data.field === "search") {
     setState({ search: input.value });
     return;
-  }
-  if (data.field === "backup-text") {
-    setBackupText(input.value);
   }
 });
 

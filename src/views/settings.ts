@@ -1,20 +1,10 @@
-import { METADATA_WARN_LIMIT, ROOM_METADATA_LIMIT } from "../constants";
 import { baseText, defaultCurrencies } from "../currency";
 import { RARITY_KEYS, rarityLabel, t } from "../i18n";
-import { metadataSize, state } from "../state";
+import { localStorageSize, state } from "../state";
 import type { Currency, Lang } from "../types";
-import { btn, checkbox, empty, field, input, section, textarea } from "../ui";
+import { btn, checkbox, empty, field, input, section } from "../ui";
 import { esc, formatBytes, formatDateTime, uid } from "../util";
 
-let backupText = "";
-
-export function setBackupText(value: string): void {
-  backupText = value;
-}
-
-export function getBackupText(): string {
-  return backupText;
-}
 
 function currencyCard(currency: Currency, index: number, total: number): string {
   const lang = state.lang;
@@ -146,25 +136,14 @@ export function renderSettings(): string {
     ).join("")}</div>`,
   );
 
-  const size = metadataSize();
+  const size = localStorageSize();
   const storageSection = section(
     t(lang, "settings.storage"),
     `<div class="row between">
        <span>${esc(t(lang, "settings.storageSize", { size: formatBytes(size) }))}</span>
-       <span class="muted">${esc(formatBytes(ROOM_METADATA_LIMIT))} max</span>
+       <span class="muted">Local</span>
      </div>
-     <div class="meter"><div class="meter-fill${
-       size > METADATA_WARN_LIMIT ? " danger" : ""
-     }" style="width:${Math.min(100, (size / ROOM_METADATA_LIMIT) * 100).toFixed(1)}%"></div></div>
-     ${
-       size > METADATA_WARN_LIMIT
-         ? `<p class="warn">${esc(
-             t(lang, "settings.storageWarn", {
-               size: formatBytes(METADATA_WARN_LIMIT),
-             }),
-           )}</p>`
-         : ""
-     }
+     <p class="muted">${esc(t(lang, "settings.storageHint"))}</p>
      <div class="row wrap">
        ${btn({ label: t(lang, "settings.clearLog"), action: "clear-log" })}
        ${btn({ label: t(lang, "settings.clearWallets"), action: "clear-absent" })}
@@ -200,10 +179,8 @@ export function renderSettings(): string {
 
   const backupSection = section(
     t(lang, "settings.backup"),
-    `${textarea({ field: "backup-text", value: backupText, rows: 6, placeholder: "{ }" })}
-     <div class="row wrap">
-       ${btn({ label: t(lang, "settings.export"), action: "export-json", iconName: "copy" })}
-       ${btn({ label: t(lang, "settings.import"), action: "import-json", kind: "primary" })}
+    `<div class="row wrap">
+       ${btn({ label: t(lang, "settings.export"), action: "export-json", iconName: "copy", kind: "primary" })}
      </div>`,
     { hint: t(lang, "settings.backupHint") },
   );

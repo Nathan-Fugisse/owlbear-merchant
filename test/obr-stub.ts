@@ -21,21 +21,15 @@ const OBR = {
     getName: async () => "Mestre",
     getColor: async () => "#8b7bff",
     getSelection: async () => [],
-    getMetadata: async () => ({}),
-    setMetadata: noop,
     onChange: unsub,
   },
   room: {
-    getMetadata: async () => ({}),
-    setMetadata: noop,
-    onMetadataChange: unsub,
     getPermissions: async () => [],
   },
   scene: {
     isReady: async () => true,
     onReadyChange: unsub,
     grid: {
-      getDistance: async () => 0,
       getDpi: async () => 128,
       getScale: async () => ({ x: 1, y: 1 }),
     },

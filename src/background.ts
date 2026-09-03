@@ -1,7 +1,8 @@
 import OBR, { isImage } from "@owlbear-rodeo/sdk";
-import { CONTEXT_MENU_ID, METADATA, POPOVER_ID } from "./constants";
+import { CONTEXT_MENU_ID, POPOVER_ID } from "./constants";
 
 const BASE = import.meta.env.BASE_URL;
+const DATA_PREFIX = "owlbear-merchant:data:";
 
 function storedLang(): "pt-BR" | "en" {
   try {
@@ -19,8 +20,16 @@ function labels(): { open: string; manage: string; create: string } {
     : { open: "Open shop", manage: "Manage shop", create: "Make shop" };
 }
 
-const SHOP_ENABLED_KEY = ["metadata", METADATA.shop, "enabled"];
-const IS_IMAGE: { key: string; value: string } = { key: "type", value: "IMAGE" };
+function hasLocalShop(roomId: string, itemId: string): boolean {
+  try {
+    const raw = localStorage.getItem(`${DATA_PREFIX}${roomId}`);
+    if (!raw) return false;
+    const data = JSON.parse(raw) as { shops?: Record<string, unknown> };
+    return Boolean(data.shops?.[itemId]);
+  } catch {
+    return false;
+  }
+}
 
 OBR.onReady(() => {
   const label = labels();
@@ -28,52 +37,17 @@ OBR.onReady(() => {
   OBR.contextMenu.create({
     id: CONTEXT_MENU_ID,
     icons: [
-      // 1) Mestre + token que ja e mercador -> gerenciar
-      {
-        icon: `${BASE}icon-manage.svg`,
-        label: label.manage,
-        filter: {
-          min: 1,
-          max: 1,
-          roles: ["GM"],
-          some: [
-            IS_IMAGE,
-            { key: SHOP_ENABLED_KEY, value: true },
-          ],
-        },
-      },
-      // 2) Mestre + token que ainda nao e mercador -> tornar loja
-      {
-        icon: `${BASE}icon-new.svg`,
-        label: label.create,
-        filter: {
-          min: 1,
-          max: 1,
-          roles: ["GM"],
-          some: [
-            IS_IMAGE,
-            { key: SHOP_ENABLED_KEY, value: true, operator: "!=" },
-          ],
-        },
-      },
-      // 3) Qualquer jogador + token que ja e mercador -> abrir loja
       {
         icon: `${BASE}icon-shop.svg`,
-        label: label.open,
-        filter: {
-          min: 1,
-          max: 1,
-          some: [
-            IS_IMAGE,
-            { key: SHOP_ENABLED_KEY, value: true },
-          ],
-        },
+        label: storedLang() === "pt-BR" ? "Merchant" : "Merchant",
+        filter: { min: 1, max: 1, some: [{ key: "type", value: "IMAGE" }] },
       },
     ],
     onClick: (context, elementId) => {
       const item = context.items[0];
       if (!item || !isImage(item)) return;
-      const isMerchant = item.metadata[METADATA.shop] !== undefined;
+      const roomId = OBR.room.id;
+      const isMerchant = hasLocalShop(roomId, item.id);
       const role = OBR.player.getRole();
 
       const open = (tab: string) => {
@@ -86,35 +60,13 @@ OBR.onReady(() => {
         });
       };
 
-      // Mestre num token que ainda nao e mercador: cria a loja e abre a gerencia
-      if (!isMerchant) {
-        void (async () => {
-          if ((await role) !== "GM") return;
-          try {
-            await OBR.scene.items.updateItems(
-              (candidate) => candidate.id === item.id,
-              (items) => {
-                for (const draft of items) {
-                  (draft.metadata as Record<string, unknown>)[METADATA.shop] = {
-                    version: 1,
-                    enabled: true,
-                    name: item.name ?? "",
-                    updatedAt: Date.now(),
-                  };
-                }
-              },
-            );
-            open("manage");
-          } catch (error) {
-            console.error("[owlbear-merchant] nao foi possivel criar a loja:", error);
-          }
-        })();
-        return;
-      }
-
       void (async () => {
         const isGm = (await role) === "GM";
-        open(isGm ? "manage" : "buy");
+        if (isMerchant) {
+          open(isGm ? "manage" : "buy");
+          return;
+        }
+        if (isGm) open("manage");
       })();
     },
   });

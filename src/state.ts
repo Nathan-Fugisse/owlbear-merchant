@@ -1,5 +1,5 @@
-import OBR, { isImage, type Item, type Metadata } from "@owlbear-rodeo/sdk";
-import { MAX_LOG_ENTRIES, METADATA, TOKEN_LAYERS } from "./constants";
+import OBR, { isImage, type Item } from "@owlbear-rodeo/sdk";
+import { MAX_LOG_ENTRIES, TOKEN_LAYERS } from "./constants";
 import {
   defaultSettings,
   defaultShop,
@@ -21,10 +21,18 @@ import type {
   ToastKind,
   Wallet,
 } from "./types";
-import { sanitizeStock, sanitizeServices } from "./defaults";
 import { uid } from "./util";
 
 const LANG_KEY = "owlbear-merchant:lang";
+const DATA_PREFIX = "owlbear-merchant:data:";
+
+type LocalData = {
+  version: number;
+  settings: Settings;
+  wallets: Record<string, Wallet>;
+  orders: Order[];
+  shops: Record<string, ShopData>;
+};
 
 export type TokenInfo = {
   id: string;
@@ -46,6 +54,7 @@ export type AppState = {
   settings: Settings;
   wallets: Record<string, Wallet>;
   orders: Order[];
+  shops: Record<string, ShopData>;
   tokens: TokenInfo[];
   route: Route;
   walletViewId: string;
@@ -84,12 +93,14 @@ export const state: AppState = {
   settings: defaultSettings(loadLang()),
   wallets: {},
   orders: [],
+  shops: {},
   tokens: [],
   route: { name: "home", tab: "shops" },
   walletViewId: "",
   search: "",
 };
 
+let roomStorageKey = "";
 let renderListener: (() => void) | null = null;
 
 export function onRender(listener: () => void): void {
@@ -122,16 +133,34 @@ export function toast(text: string, kind: ToastKind = "info"): void {
   }, 3500);
 }
 
-/* -------------------------------------------------------------------------- */
-/* Leitura / escrita                                                          */
-/* -------------------------------------------------------------------------- */
+function storageKey(roomId: string): string {
+  return `${DATA_PREFIX}${roomId}`;
+}
 
-function applyRoomMetadata(metadata: Metadata): void {
-  state.settings = sanitizeSettings(metadata[METADATA.settings], state.lang);
-  const walletsRaw = (metadata[METADATA.wallets] ?? {}) as Record<string, unknown>;
-  const wallets: Record<string, Wallet> = {};
-  for (const [id, raw] of Object.entries(walletsRaw)) {
-    wallets[id] = sanitizeWallet(
+function emptyLocalData(): LocalData {
+  return {
+    version: 1,
+    settings: defaultSettings(state.lang),
+    wallets: {},
+    orders: [],
+    shops: {},
+  };
+}
+
+function loadLocalData(roomId: string): void {
+  roomStorageKey = storageKey(roomId);
+  let data = emptyLocalData();
+  try {
+    const raw = localStorage.getItem(roomStorageKey);
+    if (raw) data = { ...data, ...(JSON.parse(raw) as Partial<LocalData>) };
+  } catch (error) {
+    console.warn("[owlbear-merchant] nao foi possivel ler o armazenamento local:", error);
+  }
+
+  state.settings = sanitizeSettings(data.settings, state.lang);
+  state.wallets = {};
+  for (const [id, raw] of Object.entries(data.wallets ?? {})) {
+    state.wallets[id] = sanitizeWallet(
       raw,
       id,
       `Player ${id.slice(0, 4)}`,
@@ -139,46 +168,68 @@ function applyRoomMetadata(metadata: Metadata): void {
       state.settings.currencies,
     );
   }
-  state.wallets = wallets;
-  state.orders = sanitizeOrders(metadata[METADATA.orders], state.settings.currencies);
+  state.orders = sanitizeOrders(data.orders, state.settings.currencies);
+  state.shops = {};
+  for (const [itemId, raw] of Object.entries(data.shops ?? {})) {
+    state.shops[itemId] = sanitizeShop(raw, state.settings);
+  }
 }
 
-let tokensSignature = "";
-let partySignature = "";
+function persistLocalData(): void {
+  if (!roomStorageKey) return;
+  const data: LocalData = {
+    version: 1,
+    settings: state.settings,
+    wallets: state.wallets,
+    orders: state.orders,
+    shops: state.shops,
+  };
+  try {
+    localStorage.setItem(roomStorageKey, JSON.stringify(data));
+  } catch (error) {
+    console.error("[owlbear-merchant] falha ao salvar no armazenamento local:", error);
+    toast(
+      state.lang === "pt-BR"
+        ? "Não foi possível salvar os dados localmente."
+        : "Could not save data locally.",
+      "error",
+    );
+  }
+}
 
-/**
- * Evita re-renderizar a interface a cada movimento de token: so atualizamos
- * quando algo que realmente exibimos muda.
- */
 function signatureOf(items: Item[]): string {
   let signature = "";
   for (const item of items) {
     if (!isImage(item)) continue;
     if (!TOKEN_LAYERS.includes(item.layer as (typeof TOKEN_LAYERS)[number])) continue;
-    signature += `|${item.id}:${item.name ?? ""}:${item.image?.url ?? ""}:${JSON.stringify(
-      item.metadata[METADATA.shop] ?? null,
-    )}`;
+    signature += `|${item.id}:${item.name ?? ""}:${item.image?.url ?? ""}`;
   }
   return signature;
 }
 
+let tokensSignature = "";
+let partySignature = "";
+
 function setTokens(items: Item[]): void {
   const signature = signatureOf(items);
-  if (signature === tokensSignature) return;
+  if (signature === tokensSignature) {
+    // Os dados da loja podem ter mudado sem o token mudar.
+    for (const token of state.tokens) token.shop = state.shops[token.id];
+    return;
+  }
   tokensSignature = signature;
 
   const tokens: TokenInfo[] = [];
   for (const item of items) {
     if (!isImage(item)) continue;
     if (!TOKEN_LAYERS.includes(item.layer as (typeof TOKEN_LAYERS)[number])) continue;
-    const raw = item.metadata[METADATA.shop];
     tokens.push({
       id: item.id,
       name: item.name || "Token",
       image: item.image?.url ?? "",
       layer: item.layer,
       owner: item.createdUserId ?? "",
-      shop: raw ? sanitizeShop(raw, state.settings) : undefined,
+      shop: state.shops[item.id],
     });
   }
   tokens.sort((a, b) => a.name.localeCompare(b.name));
@@ -202,7 +253,7 @@ export function getToken(itemId: string): TokenInfo | undefined {
 }
 
 export function getShop(itemId: string): ShopData | undefined {
-  return getToken(itemId)?.shop;
+  return state.shops[itemId];
 }
 
 export function myWallet(): Wallet {
@@ -224,14 +275,10 @@ export function viewedWallet(): Wallet {
   return state.wallets[id] ?? myWallet();
 }
 
-/* -------------------------------------------------------------------------- */
-/* Escritas                                                                   */
-/* -------------------------------------------------------------------------- */
-
 export async function saveSettings(next: Settings): Promise<void> {
   state.settings = next;
+  persistLocalData();
   requestRender();
-  await OBR.room.setMetadata({ [METADATA.settings]: next });
 }
 
 export async function patchSettings(patch: Partial<Settings>): Promise<void> {
@@ -239,25 +286,24 @@ export async function patchSettings(patch: Partial<Settings>): Promise<void> {
 }
 
 export async function saveWallet(wallet: Wallet): Promise<void> {
-  const next = {
+  state.wallets = {
     ...state.wallets,
     [wallet.id]: { ...wallet, updatedAt: Date.now() },
   };
-  state.wallets = next;
+  persistLocalData();
   requestRender();
-  await OBR.room.setMetadata({ [METADATA.wallets]: next });
 }
 
 export async function saveWallets(next: Record<string, Wallet>): Promise<void> {
   state.wallets = next;
+  persistLocalData();
   requestRender();
-  await OBR.room.setMetadata({ [METADATA.wallets]: next });
 }
 
 export async function saveOrders(next: Order[]): Promise<void> {
   state.orders = next;
+  persistLocalData();
   requestRender();
-  await OBR.room.setMetadata({ [METADATA.orders]: next });
 }
 
 export async function updateShop(
@@ -269,24 +315,14 @@ export async function updateShop(
   const draft: ShopData = JSON.parse(JSON.stringify(current));
   const next = updater(draft) ?? draft;
   next.updatedAt = Date.now();
-  try {
-    await OBR.scene.items.updateItems(
-      (item) => item.id === itemId,
-      (items) => {
-        for (const item of items) {
-          (item.metadata as Record<string, unknown>)[METADATA.shop] = next;
-        }
-      },
-    );
-    return true;
-  } catch (error) {
-    console.error("[owlbear-merchant] falha ao atualizar a loja:", error);
-    return false;
-  }
+  state.shops = { ...state.shops, [itemId]: next };
+  persistLocalData();
+  setTokens(await OBR.scene.items.getItems());
+  requestRender();
+  return true;
 }
 
 export async function createShop(itemId: string, tokenName: string): Promise<boolean> {
-  // Se o token ja tem uma loja (mesmo desativada) apenas reativamos, sem perder dados
   const existing = getShop(itemId);
   if (existing) {
     return updateShop(itemId, (shop) => {
@@ -298,20 +334,11 @@ export async function createShop(itemId: string, tokenName: string): Promise<boo
     { ...defaultShopFor(tokenName), enabled: true },
     state.settings,
   );
-  try {
-    await OBR.scene.items.updateItems(
-      (item) => item.id === itemId,
-      (items) => {
-        for (const item of items) {
-          (item.metadata as Record<string, unknown>)[METADATA.shop] = shop;
-        }
-      },
-    );
-    return true;
-  } catch (error) {
-    console.error("[owlbear-merchant] falha ao criar a loja:", error);
-    return false;
-  }
+  state.shops = { ...state.shops, [itemId]: shop };
+  persistLocalData();
+  setTokens(await OBR.scene.items.getItems());
+  requestRender();
+  return true;
 }
 
 function defaultShopFor(tokenName: string): ShopData {
@@ -319,20 +346,14 @@ function defaultShopFor(tokenName: string): ShopData {
 }
 
 export async function deleteShop(itemId: string): Promise<boolean> {
-  try {
-    await OBR.scene.items.updateItems(
-      (item) => item.id === itemId,
-      (items) => {
-        for (const item of items) {
-          delete (item.metadata as Record<string, unknown>)[METADATA.shop];
-        }
-      },
-    );
-    return true;
-  } catch (error) {
-    console.error("[owlbear-merchant] falha ao remover a loja:", error);
-    return false;
-  }
+  if (!state.shops[itemId]) return true;
+  const next = { ...state.shops };
+  delete next[itemId];
+  state.shops = next;
+  persistLocalData();
+  setTokens(await OBR.scene.items.getItems());
+  requestRender();
+  return true;
 }
 
 export function addLog(entry: Omit<LogEntry, "id" | "at">): void {
@@ -343,18 +364,26 @@ export function addLog(entry: Omit<LogEntry, "id" | "at">): void {
   void saveSettings({ ...state.settings, log });
 }
 
-/** Tamanho aproximado (em bytes) do que guardamos no metadata da sala. */
-export function metadataSize(): number {
-  return JSON.stringify({
-    [METADATA.settings]: state.settings,
-    [METADATA.wallets]: state.wallets,
-    [METADATA.orders]: state.orders,
-  }).length;
+/** Tamanho aproximado dos dados locais deste room. */
+export function localStorageSize(): number {
+  try {
+    return new Blob([
+      JSON.stringify({
+        settings: state.settings,
+        wallets: state.wallets,
+        orders: state.orders,
+        shops: state.shops,
+      }),
+    ]).size;
+  } catch {
+    return JSON.stringify({
+      settings: state.settings,
+      wallets: state.wallets,
+      orders: state.orders,
+      shops: state.shops,
+    }).length;
+  }
 }
-
-/* -------------------------------------------------------------------------- */
-/* Navegacao                                                                  */
-/* -------------------------------------------------------------------------- */
 
 export function navigate(route: Route): void {
   state.route = route;
@@ -379,39 +408,40 @@ export function openShop(itemId: string, tab: ShopTab = "buy"): void {
   navigate({ name: "shop", itemId, tab });
 }
 
-function parseRoute(): void {
+async function parseRoute(): Promise<void> {
   const params = new URLSearchParams(window.location.search);
-  const shopId = params.get("shop");
-  if (shopId) {
-    const tab = params.get("tab") as ShopTab | null;
-    const allowed: ShopTab[] = ["buy", "sell", "services", "manage"];
-    state.route = {
+  const shop = params.get("shop");
+  const tab = params.get("tab") as ShopTab | null;
+  if (shop && state.shops[shop]) {
+    navigate({
       name: "shop",
-      itemId: shopId,
-      tab: tab && allowed.includes(tab) ? tab : "buy",
-    };
+      itemId: shop,
+      tab: tab === "sell" || tab === "services" || tab === "manage" ? tab : "buy",
+    });
+    return;
   }
+
+  // A context-menu action can request a new local shop. Create it before
+  // navigating so the popover opens directly in the manager.
+  if (shop && state.role === "GM") {
+    const token = getToken(shop);
+    if (token) {
+      await createShop(shop, token.name);
+      navigate({ name: "shop", itemId: shop, tab: "manage" });
+      return;
+    }
+  }
+  goHome("shops");
 }
 
-/* -------------------------------------------------------------------------- */
-/* Bootstrap                                                                  */
-/* -------------------------------------------------------------------------- */
-
 async function ensureMyWallet(): Promise<void> {
-  const existing = state.wallets[state.playerId];
-  const fresh = sanitizeWallet(
-    existing,
-    state.playerId,
-    state.playerName,
-    state.color,
-    state.settings.currencies,
-  );
+  const fresh = myWallet();
+  const existing = state.wallets[fresh.id];
   const needsUpdate =
     !existing ||
     existing.name !== fresh.name ||
     existing.color !== fresh.color ||
-    Object.keys(existing.money ?? {}).length !==
-      Object.keys(fresh.money).length;
+    Object.keys(existing.money ?? {}).length !== Object.keys(fresh.money).length;
   if (needsUpdate) await saveWallet(fresh);
 }
 
@@ -429,18 +459,13 @@ export function initApp(): void {
     state.color = color;
     state.walletViewId = id;
 
-    applyRoomMetadata(await OBR.room.getMetadata());
-    parseRoute();
+    loadLocalData(OBR.room.id);
     await refreshTokens();
+    await parseRoute();
     await ensureMyWallet();
 
     state.ready = true;
     requestRender();
-
-    OBR.room.onMetadataChange((metadata) => {
-      applyRoomMetadata(metadata);
-      requestRender();
-    });
 
     OBR.scene.items.onChange((items) => {
       setTokens(items);
@@ -470,11 +495,11 @@ export function initApp(): void {
   });
 }
 
-/** Re-sanitiza listas quando as moedas mudam (usado na limpeza de itens orfaos). */
+/** Re-sanitiza listas quando as moedas mudam. */
 export function resanitizeShopData(shop: ShopData): ShopData {
   return {
     ...shop,
-    stock: sanitizeStock(shop.stock, state.settings.currencies),
-    services: sanitizeServices(shop.services, state.settings.currencies),
+    stock: shop.stock.map((entry) => ({ ...entry })),
+    services: shop.services.map((service) => ({ ...service })),
   };
 }
