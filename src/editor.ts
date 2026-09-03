@@ -1,6 +1,6 @@
-import type { EditTarget, InventoryEntry, ServiceEntry, StockEntry } from "./types";
+import type { CatalogItem, CatalogService, EditTarget, InventoryEntry, ServiceEntry, StockEntry } from "./types";
 
-export type Draft = StockEntry | ServiceEntry | InventoryEntry | null;
+export type Draft = StockEntry | ServiceEntry | InventoryEntry | CatalogItem | CatalogService | null;
 
 let target: EditTarget = null;
 let draft: Draft = null;

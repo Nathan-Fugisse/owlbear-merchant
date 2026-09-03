@@ -4,7 +4,7 @@ import { RARITY_KEYS, rarityLabel, t } from "../i18n";
 import { state } from "../state";
 import { renderEditor } from "./shop";
 import type { Currency, Lang } from "../types";
-import { btn, checkbox, empty, field, input, section, textarea } from "../ui";
+import { btn, checkbox, empty, field, input, section } from "../ui";
 import { esc, formatDateTime, uid } from "../util";
 
 let backupText = "";

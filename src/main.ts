@@ -56,7 +56,7 @@ import type {
   StockEntry,
 } from "./types";
 import { clamp, toNumber, uid } from "./util";
-import { getBackupText, getPresets, newCurrencyId, setBackupText } from "./views/settings";
+import { getPresets, newCurrencyId, setBackupText } from "./views/settings";
 
 const app = document.getElementById("app") as HTMLDivElement;
 
