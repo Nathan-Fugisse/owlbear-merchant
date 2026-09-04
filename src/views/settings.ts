@@ -97,6 +97,14 @@ export function renderSettings(): string {
   const settings = state.settings;
   const currencies = settings.currencies;
 
+  if (state.role !== "GM") {
+    return section(
+      "Configurações da sala",
+      `<p class="muted">As moedas, modelos de itens e serviços e demais configurações pertencem à sala e são definidos pelo Mestre.</p>
+       <p class="section-hint">Você está vendo uma configuração compartilhada. Peça ao Mestre para fazer alterações.</p>`,
+    );
+  }
+
   const catalogItems = state.catalog.items;
   const catalogServices = state.catalog.services;
   const catalogSection = section(
@@ -111,7 +119,7 @@ export function renderSettings(): string {
      <h3>Serviços</h3>
      ${catalogServices.length ? `<div class="list cards">${catalogServices.map((service) => `<article class="card"><header class="card-head"><strong>${esc(service.name || "Serviço sem nome")}</strong><div class="card-actions">${btn({label:"Editar",action:"edit-catalog-service",id:service.id})}${btn({label:"Excluir",action:"delete-catalog-service",id:service.id,kind:"danger",confirm:"Excluir este modelo?"})}</div></header><div class="item-meta">${esc(service.description || "Sem descrição")} · ${esc(String(service.price.amount))} ${esc(service.price.currencyId)}</div></article>`).join("")}</div>` : empty("Nenhum serviço na biblioteca.")}
      ${getTarget()?.kind === "catalog-item" || getTarget()?.kind === "catalog-service" ? renderEditor(getTarget()!.kind, getDraft() as any, state.settings.currencies) : ""}`,
-    { hint: "Os modelos ficam no localStorage e podem ser reutilizados em vários mercadores." },
+    { hint: "Os modelos ficam compartilhados nesta sala e podem ser reutilizados em vários mercadores." },
   );
 
   const currencySection = section(
@@ -165,8 +173,8 @@ export function renderSettings(): string {
   );
 
   const storageSection = section(
-    "Armazenamento local",
-    `<p class="muted">Os dados da extensão ficam no armazenamento local do navegador, separados por sala. Eles não ocupam o Room Metadata do Owlbear Rodeo.</p>
+    "Armazenamento da sala",
+    `<p class="muted">Configurações, moedas, carteiras, pedidos e biblioteca são compartilhados entre os jogadores pela sala. O navegador mantém apenas um cache local.</p>
      <div class="row wrap">
        ${btn({ label: t(lang, "settings.clearLog"), action: "clear-log" })}
        ${btn({ label: t(lang, "settings.clearWallets"), action: "clear-absent" })}

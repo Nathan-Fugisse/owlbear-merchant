@@ -37,19 +37,22 @@ export function renderWallet(): string {
     ${currencies
       .map((currency) => {
         const value = wallet.money[currency.id] ?? 0;
+        const control = isGm
+          ? input({
+              field: "wallet-money",
+              id: currency.id,
+              type: "number",
+              value,
+              step: currency.decimals > 0 ? 10 ** -currency.decimals : 1,
+              min: 0,
+              className: "input small",
+            })
+          : `<strong class="wallet-value">${esc(formatNumber(value, lang, currency.decimals))}</strong>`;
         return `<div class="money-cell" style="--coin:${esc(currency.color)}">
           <span class="coin-dot"></span>
           <span class="coin-name">${esc(currency.name)}</span>
           <span class="coin-symbol">${esc(currency.symbol)}</span>
-          ${input({
-            field: "wallet-money",
-            id: currency.id,
-            type: "number",
-            value: value,
-            step: currency.decimals > 0 ? 10 ** -currency.decimals : 1,
-            min: 0,
-            className: "input small",
-          })}
+          ${control}
         </div>`;
       })
       .join("")}
@@ -86,6 +89,7 @@ export function renderWallet(): string {
     ${section(
       t(lang, "wallet.title"),
       `${ownerPicker}
+       ${!isGm ? `<p class="section-hint">Apenas o Mestre pode definir ou alterar o dinheiro dos jogadores.</p>` : ""}
        ${moneyEditor}
        <div class="row between">
          <span class="muted">${esc(t(lang, "wallet.totalValue"))}: ${esc(baseText(total, currencies, lang))}</span>

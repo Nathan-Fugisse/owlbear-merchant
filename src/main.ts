@@ -281,6 +281,7 @@ app.addEventListener("click", (event) => {
 
     /* ---- biblioteca de itens/servicos ---- */
     case "new-catalog-item": {
+      if (state.role !== "GM") return;
       const item = newStockEntry(state.settings.currencies);
       addCatalogItem(item);
       setEditor({ kind: "catalog-item", entryId: item.id }, clone(item));
@@ -288,6 +289,7 @@ app.addEventListener("click", (event) => {
       return;
     }
     case "new-catalog-service": {
+      if (state.role !== "GM") return;
       const service = newServiceEntry(state.settings.currencies);
       addCatalogService(service);
       setEditor({ kind: "catalog-service", entryId: service.id }, clone(service));
@@ -295,12 +297,15 @@ app.addEventListener("click", (event) => {
       return;
     }
     case "delete-catalog-item":
+      if (state.role !== "GM") return;
       deleteCatalogItem(data.id ?? "");
       return;
     case "delete-catalog-service":
+      if (state.role !== "GM") return;
       deleteCatalogService(data.id ?? "");
       return;
     case "add-catalog-item-to-shop": {
+      if (state.role !== "GM") return;
       const shopId = currentShopId();
       const item = state.catalog.items.find((x) => x.id === data.id);
       if (shopId && item) void updateShop(shopId, (draft) => {
@@ -311,6 +316,7 @@ app.addEventListener("click", (event) => {
       return;
     }
     case "add-catalog-service-to-shop": {
+      if (state.role !== "GM") return;
       const shopId = currentShopId();
       const service = state.catalog.services.find((x) => x.id === data.id);
       if (shopId && service) void updateShop(shopId, (draft) => {
@@ -321,11 +327,13 @@ app.addEventListener("click", (event) => {
       return;
     }
     case "edit-catalog-item": {
+      if (state.role !== "GM") return;
       const entry = state.catalog.items.find((x) => x.id === data.id);
       if (entry) { setEditor({ kind: "catalog-item", entryId: entry.id }, clone(entry)); requestRender(); }
       return;
     }
     case "edit-catalog-service": {
+      if (state.role !== "GM") return;
       const entry = state.catalog.services.find((x) => x.id === data.id);
       if (entry) { setEditor({ kind: "catalog-service", entryId: entry.id }, clone(entry)); requestRender(); }
       return;
@@ -441,6 +449,7 @@ app.addEventListener("click", (event) => {
 
     /* ---- moedas ---- */
     case "add-currency": {
+      if (state.role !== "GM") return;
       const currencies = state.settings.currencies;
       const index = currencies.length + 1;
       const next: Currency = {
@@ -456,12 +465,14 @@ app.addEventListener("click", (event) => {
       return;
     }
     case "delete-currency": {
+      if (state.role !== "GM") return;
       const currencies = state.settings.currencies;
       if (currencies.length <= 1) return;
       void saveCurrencies(currencies.filter((currency) => currency.id !== data.id));
       return;
     }
     case "move-currency": {
+      if (state.role !== "GM") return;
       const currencies = [...state.settings.currencies];
       const index = currencies.findIndex((currency) => currency.id === data.id);
       const nextIndex = data.value === "up" ? index - 1 : index + 1;
@@ -472,6 +483,7 @@ app.addEventListener("click", (event) => {
       return;
     }
     case "preset": {
+      if (state.role !== "GM") return;
       const presets = getPresets(state.lang);
       const preset = presets[data.value ?? "dnd"];
       if (!preset) return;
@@ -532,6 +544,7 @@ app.addEventListener("click", (event) => {
       return;
     }
     case "import-json": {
+      if (state.role !== "GM") return;
       const input = document.createElement("input");
       input.type = "file"; input.accept = "application/json,.json";
       input.onchange = () => {
@@ -548,6 +561,7 @@ app.addEventListener("click", (event) => {
             state.catalog = parsed.catalog ?? { items: [], services: [] };
             state.shops = parsed.shops ?? {};
             localStorage.setItem(`owlbear-merchant:data:${state.roomKey}`, JSON.stringify({ version: 2, settings: state.settings, wallets: state.wallets, orders: state.orders, shops: state.shops }));
+            await saveOrders(state.orders);
             await refreshTokens(); requestRender();
             toast("Backup restaurado com sucesso.", "success");
           } catch (error) {
@@ -608,9 +622,11 @@ app.addEventListener("change", (event) => {
       return;
     }
     case "wallet-owner":
+      if (state.role !== "GM") return;
       setState({ walletViewId: value });
       return;
     case "wallet-money": {
+      if (state.role !== "GM") return;
       const wallet = viewedWallet();
       void setWalletMoney(wallet.id, {
         ...wallet.money,
@@ -674,15 +690,19 @@ app.addEventListener("change", (event) => {
 
     /* ---- configuracoes ---- */
     case "setting-price":
+      if (state.role !== "GM") return;
       void patchSettings({ defaultPriceMultiplier: Math.max(0, toNumber(value, 1)) });
       return;
     case "setting-payout":
+      if (state.role !== "GM") return;
       void patchSettings({ defaultPayoutMultiplier: Math.max(0, toNumber(value, 0.5)) });
       return;
     case "setting-showRarity":
+      if (state.role !== "GM") return;
       void patchSettings({ showRarity: checked });
       return;
     case "rarity-mult":
+      if (state.role !== "GM") return;
       void patchSettings({
         rarityMultipliers: {
           ...state.settings.rarityMultipliers,
@@ -696,6 +716,7 @@ app.addEventListener("change", (event) => {
     case "currency-rate":
     case "currency-decimals":
     case "currency-color": {
+      if (state.role !== "GM") return;
       const currencies = state.settings.currencies.map((currency) => {
         if (currency.id !== data.id) return currency;
         switch (field) {

@@ -1,6 +1,5 @@
 import OBR, { isImage } from "@owlbear-rodeo/sdk";
 import { CONTEXT_MENU_ID, METADATA, POPOVER_ID } from "./constants";
-import { createShop } from "./state";
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -91,12 +90,7 @@ OBR.onReady(() => {
       if (!isMerchant) {
         void (async () => {
           if ((await role) !== "GM") return;
-          try {
-            await createShop(item.id, item.name ?? "");
-            open("manage");
-          } catch (error) {
-            console.error("[owlbear-merchant] nao foi possivel criar a loja:", error);
-          }
+          open(`manage&createShop=${encodeURIComponent(item.id)}`);
         })();
         return;
       }
